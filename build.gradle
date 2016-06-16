@@ -26,11 +26,13 @@ repositories {
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-jersey')
-	runtime('org.postgresql:postgresql')
-	compile("org.springframework.boot:spring-boot-starter-web")
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('com.jayway.jsonpath:json-path')
+    compile('org.springframework.boot:spring-boot-starter-jersey')
+    runtime('org.postgresql:postgresql')
+    runtime('org.postgresql:postgresql')
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-devtools")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.jayway.jsonpath:json-path')
 }
 
 
