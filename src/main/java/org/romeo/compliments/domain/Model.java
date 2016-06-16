@@ -1,4 +1,7 @@
-package org.romeo.compliments.users;
+package org.romeo.compliments.domain;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * User: tylerromeo
@@ -25,6 +28,8 @@ public class Model {
         this.id = id;
     }
 
+    @JsonProperty(required = true)
+    @ApiModelProperty(notes = "The user's email address", required = true)
     public String getEmail() {
         return email;
     }
@@ -33,6 +38,8 @@ public class Model {
         this.email = email;
     }
 
+    @JsonProperty(required = false)
+    @ApiModelProperty(notes = "A url pointing to an image of the user", required = false)
     public String getImageUrl() {
         return imageUrl;
     }
