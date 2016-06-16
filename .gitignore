@@ -1,2 +1,4 @@
 compliments.iml
 .idea/
+.gradle/
+build/
