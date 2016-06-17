@@ -37,4 +37,7 @@ dependencies {
     testCompile('com.jayway.jsonpath:json-path')
 }
 
-
+//stage task for heroku. Runs on each deploy
+task stage {
+	dependsOn build
+}
