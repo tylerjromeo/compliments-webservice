@@ -13,10 +13,10 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
-public class WebserviceApplication {
+public class MainApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(WebserviceApplication.class, args);
+        SpringApplication.run(MainApplication.class, args);
     }
 
     @Bean

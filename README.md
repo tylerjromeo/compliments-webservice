@@ -6,7 +6,7 @@ web service for compliments webapp.
 `./gradlew assemble`
 
 ## Run
-`java -jar build/libs/webservice-0.0.1-SNAPSHOT.jar`
+`java -jar build/libs/compliment-service-0.0.1-SNAPSHOT.jar`
 Or for development
 `./gradlew bootRun`
 
