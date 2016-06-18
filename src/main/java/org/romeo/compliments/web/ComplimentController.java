@@ -23,7 +23,7 @@ public class ComplimentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "to", value = "Id for the user the compliments were sent to", required = false, dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "from", value = "Id for the user the compliments were sent by", required = false, dataType = "string", paramType = "query"),
-            @ApiImplicitParam(name = "offset", value = "Number of results in the set to skip", defaultValue = "0", required = false, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "page", value = "Page number of results to return", defaultValue = "0", required = false, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "numResults", value = "Total number of results to return. Maximum 100", defaultValue = "10", required = false, dataType = "int", paramType = "query")
     })
     @ApiResponses(value = {
@@ -34,7 +34,7 @@ public class ComplimentController {
     public PaginatedList<Compliment> getCompliments(
             @RequestParam(required = false) String to,
             @RequestParam(required = false) String from,
-            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int numResults) {
 
         if (to == null) to = "1";
@@ -43,7 +43,7 @@ public class ComplimentController {
         compliments.add(new Compliment.Builder().id("1").toId(to).fromId(from).contents("You are great!").sendDate(new Date()).build());
         compliments.add(new Compliment.Builder().id("2").toId(to).fromId(from).contents("You are really great!").sendDate(new Date()).build());
 
-        return new PaginatedList<Compliment>(2, offset, numResults, "http://localhost:8080/compliments?to=1&numResults=10&offset=10", compliments);
+        return new PaginatedList<Compliment>(page, numResults, "http://localhost:8080/compliments?to=1&numResults=10&page=2", compliments);
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/compliments", produces = "application/json")

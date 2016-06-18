@@ -1,12 +1,12 @@
 package org.romeo.compliments.persistence;
 
 import org.romeo.compliments.persistence.domain.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  * User: tylerromeo
  * Date: 6/18/16
  * Time: 10:04 AM
  */
-public interface UserRepository extends CrudRepository<User, Long>{
+public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 }

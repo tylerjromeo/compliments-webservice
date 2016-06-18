@@ -6,6 +6,7 @@ import org.romeo.compliments.web.domain.PaginatedList;
 import org.romeo.compliments.web.domain.User;
 import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class UserController {
     @ApiOperation(value = "get all Users", nickname = "get All Users")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "User email to filter on", required = false, dataType = "string", paramType = "query"),
-            @ApiImplicitParam(name = "offset", value = "Number of results in the set to skip", defaultValue = "0", required = false, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "page", value = "Page number of results to return", defaultValue = "0", required = false, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "numResults", value = "Total number of results to return. Maximum 100", defaultValue = "10", required = false, dataType = "int", paramType = "query")
     })
     @ApiResponses(value = {
@@ -42,16 +43,17 @@ public class UserController {
             @ApiResponse(code = 500, message = "Failure")})
     public PaginatedList<User> getAll(
             @RequestParam(required = false) String email,
-            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int numResults) {
         //TODO: filter by email
         List<User> users = new ArrayList<User>();
-        //TODO: pass pagination params to db
-        Iterable<org.romeo.compliments.persistence.domain.User> dbUsers = userRepository.findAll();
+        Iterable<org.romeo.compliments.persistence.domain.User> dbUsers = userRepository.findAll(new PageRequest(page, numResults));
         for(org.romeo.compliments.persistence.domain.User dbUser : dbUsers) {
             users.add(User.fromDbUser(dbUser));
         }
-        return new PaginatedList<User>(users.size(), offset, numResults, "http://localhost:8080/users?offset=10&numResults=10", users);
+        //TODO: get real url from web request
+        //TODO: don't return a url if this is the last page of results
+        return new PaginatedList<User>(page, users.size(), String.format("http://localhost:8080/users?page=%d&numResults=%d", page + 1, numResults), users);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/users/{id}", produces = "application/json")

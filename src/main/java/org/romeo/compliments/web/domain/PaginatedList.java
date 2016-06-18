@@ -12,38 +12,26 @@ import java.util.List;
  */
 public class PaginatedList<T> {
 
-    private int totalResults;
-    private int offest;
+    private int page;
     private int count;
     private String next;
     private List<T> results;
 
-    public PaginatedList(int totalResults, int offest, int count, String next, List<T> results) {
-        this.totalResults = totalResults;
-        this.offest = offest;
+    public PaginatedList(int page, int count, String next, List<T> results) {
+        this.page = page;
         this.count = count;
         this.next = next;
         this.results = results;
     }
 
     @JsonProperty(required = true)
-    @ApiModelProperty(notes = "The total number of results available from the service", required = true)
-    public int getTotalResults() {
-        return totalResults;
-    }
-
-    public void setTotalResults(int totalResults) {
-        this.totalResults = totalResults;
-    }
-
-    @JsonProperty(required = true)
     @ApiModelProperty(notes = "The number of results skipped in the result set", required = true)
-    public int getOffest() {
-        return offest;
+    public int getPage() {
+        return page;
     }
 
-    public void setOffest(int offest) {
-        this.offest = offest;
+    public void setPage(int page) {
+        this.page = page;
     }
 
     @JsonProperty(required = true)
