@@ -1,4 +1,4 @@
-package org.romeo.compliments.domain;
+package org.romeo.compliments.web.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;

@@ -1,11 +1,14 @@
 package org.romeo.compliments.web;
 
 import io.swagger.annotations.*;
-import org.romeo.compliments.domain.PaginatedList;
-import org.romeo.compliments.domain.User;
+import org.romeo.compliments.persistence.UserRepository;
+import org.romeo.compliments.web.domain.PaginatedList;
+import org.romeo.compliments.web.domain.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -16,6 +19,13 @@ import java.util.List;
 
 @RestController
 public class UserController {
+
+    @Autowired
+    UserRepository userRepository;
+
+    public UserController(){
+
+    }
 
     @RequestMapping(method = RequestMethod.GET, path = "/users", produces = "application/json")
     @ApiOperation(value = "get all Users", nickname = "get All Users")
@@ -33,25 +43,27 @@ public class UserController {
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int offset,
             @RequestParam(defaultValue = "10") int numResults) {
-        String email1 = (email == null) ? "Tyler@example.com" : email;
-        String email2 = (email == null) ? "Kevin@example.com" : email;
-        List<User> users = new ArrayList<User>(2);
-        users.add(new User("0", email1, "Tyler Romeo", "http://placekitten.com/400/200", 0, 0));
-        users.add(new User("1", email2, "Kevin Welcher", "http://placekitten.com/300/200", 0, 0));
-        return new PaginatedList<User>(2, offset, numResults, "http://localhost:8080/users?offset=10&numResults=10", users);
+        //TODO: filter by email
+        List<User> users = new ArrayList<User>();
+        //TODO: pass pagination params to db
+        Iterable<org.romeo.compliments.persistence.domain.User> dbUsers = userRepository.findAll();
+        for(org.romeo.compliments.persistence.domain.User dbUser : dbUsers) {
+            users.add(User.fromDbUser(dbUser));
+        }
+        return new PaginatedList<User>(users.size(), offset, numResults, "http://localhost:8080/users?offset=10&numResults=10", users);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/users/{id}", produces = "application/json")
     @ApiOperation(value = "get all Users", nickname = "get All Users")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "User's id", required = true, dataType = "string", paramType = "path")
+            @ApiImplicitParam(name = "id", value = "User's id", required = true, dataType = "long", paramType = "path")
     })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = User.class),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
-    public User getById(@PathVariable("id") String id) {
+    public User getById(@PathVariable("id") long id) {
         return new User(id, "Tyler@example.com", "Tyler Romeo", "http://placekitten.com/400/200", 0, 0);
     }
 }

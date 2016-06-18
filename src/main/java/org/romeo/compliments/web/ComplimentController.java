@@ -1,9 +1,8 @@
 package org.romeo.compliments.web;
 
 import io.swagger.annotations.*;
-import org.romeo.compliments.domain.Compliment;
-import org.romeo.compliments.domain.PaginatedList;
-import org.romeo.compliments.domain.User;
+import org.romeo.compliments.web.domain.Compliment;
+import org.romeo.compliments.web.domain.PaginatedList;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;

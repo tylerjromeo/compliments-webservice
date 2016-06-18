@@ -1,4 +1,4 @@
-package org.romeo.compliments.domain;
+package org.romeo.compliments.web.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,27 +10,31 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class User {
 
-    private String id;
+    private long id;
     private String name;
     private String email;
     private String imageUrl;
     private int complimentsSent;
     private int complimentsReceived;
 
-    public User(String email, String id, String name, String imageUrl, int complimentsSent, int complimentsReceived) {
-        this.email = email;
+    public User(long id, String email, String name, String imageUrl, int complimentsSent, int complimentsReceived) {
         this.id = id;
+        this.email = email;
         this.name = name;
         this.imageUrl = imageUrl;
         this.complimentsSent = complimentsSent;
         this.complimentsReceived = complimentsReceived;
     }
 
-    public String getId() {
+    public static User fromDbUser(org.romeo.compliments.persistence.domain.User dbUser) {
+        return new User(dbUser.getId(), dbUser.getEmail(), dbUser.getName(), dbUser.getImageUrl(), dbUser.getComplimentsSent().size(), dbUser.getComplimentsReceived().size());
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
