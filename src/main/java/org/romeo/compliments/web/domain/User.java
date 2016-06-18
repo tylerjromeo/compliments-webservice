@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Date: 6/15/16
  * Time: 8:32 PM
  */
+
 public class User {
 
     private long id;
@@ -90,5 +91,32 @@ public class User {
 
     public void setComplimentsReceived(int complimentsReceived) {
         this.complimentsReceived = complimentsReceived;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (id != user.id) return false;
+        if (complimentsSent != user.complimentsSent) return false;
+        if (complimentsReceived != user.complimentsReceived) return false;
+        if (name != null ? !name.equals(user.name) : user.name != null) return false;
+        if (email != null ? !email.equals(user.email) : user.email != null) return false;
+        return imageUrl != null ? imageUrl.equals(user.imageUrl) : user.imageUrl == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + (imageUrl != null ? imageUrl.hashCode() : 0);
+        result = 31 * result + complimentsSent;
+        result = 31 * result + complimentsReceived;
+        return result;
     }
 }
