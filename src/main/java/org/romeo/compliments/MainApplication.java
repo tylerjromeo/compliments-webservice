@@ -27,6 +27,10 @@ public class MainApplication {
         //Seed database with 2 users
         //FIXME: turn off when not using in memory db
         UserRepository userRepository = cxt.getBean(UserRepository.class);
+        addTestUsers(userRepository);
+    }
+
+    private static void addTestUsers(UserRepository userRepository) {
         List<User> users = new ArrayList<User>(2);
         users.add(new User("Tyler Romeo", "tyler.romeo@example.com", "http://placekitten.com/300/200"));
         users.add(new User("Kevin Welcher", "kevin.welcher@example.com", "http://placekitten.com/200/200"));
