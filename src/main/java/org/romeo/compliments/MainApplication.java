@@ -22,10 +22,9 @@ public class MainApplication {
     @Bean
     public Docket usersApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("users")
                 .apiInfo(apiInfo())
                 .select()
-                .paths(regex("/users.*"))
+                .paths(regex("/users.*|/compliments.*"))
                 .build();
     }
 
