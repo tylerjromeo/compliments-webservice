@@ -22,7 +22,6 @@ import java.util.List;
 @RestController
 public class ComplimentController {
 
-
     @RequestMapping(method = RequestMethod.GET, path = "/compliments", produces = "application/json")
     @ApiOperation(value = "Get Compliments", nickname = "Get Compliments")
     @ApiImplicitParams({

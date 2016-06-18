@@ -29,7 +29,10 @@ public class UserController {
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
-    public PaginatedList<User> getAll(@RequestParam(required = false) String email, @RequestParam(defaultValue = "0") int offset, @RequestParam(defaultValue = "10") int numResults) {
+    public PaginatedList<User> getAll(
+            @RequestParam(required = false) String email,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int numResults) {
         String email1 = (email == null) ? "Tyler@example.com" : email;
         String email2 = (email == null) ? "Kevin@example.com" : email;
         List<User> users = new ArrayList<User>(2);
