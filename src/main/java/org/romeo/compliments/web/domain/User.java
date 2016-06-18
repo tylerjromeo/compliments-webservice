@@ -27,7 +27,11 @@ public class User {
     }
 
     public static User fromDbUser(org.romeo.compliments.persistence.domain.User dbUser) {
-        return new User(dbUser.getId(), dbUser.getEmail(), dbUser.getName(), dbUser.getImageUrl(), dbUser.getComplimentsSent().size(), dbUser.getComplimentsReceived().size());
+        if(dbUser == null) {
+            return null;
+        } else {
+            return new User(dbUser.getId(), dbUser.getEmail(), dbUser.getName(), dbUser.getImageUrl(), dbUser.getComplimentsSent().size(), dbUser.getComplimentsReceived().size());
+        }
     }
 
     public long getId() {

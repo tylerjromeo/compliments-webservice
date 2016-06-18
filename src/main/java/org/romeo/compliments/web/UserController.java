@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.romeo.compliments.persistence.UserRepository;
 import org.romeo.compliments.web.domain.PaginatedList;
 import org.romeo.compliments.web.domain.User;
+import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,12 +59,12 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "User's id", required = true, dataType = "long", paramType = "path")
     })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = User.class),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 500, message = "Failure")})
-    public User getById(@PathVariable("id") long id) {
-        return new User(id, "Tyler@example.com", "Tyler Romeo", "http://placekitten.com/400/200", 0, 0);
+    public User getById(@PathVariable("id") long id) throws ResourceNotFoundException {
+        User user = User.fromDbUser(userRepository.findOne(id));
+        if(user == null) {
+            throw new ResourceNotFoundException();
+        }
+        return user;
     }
+
 }
