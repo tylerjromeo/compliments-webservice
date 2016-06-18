@@ -1,0 +1,11 @@
+language: java
+jdk:
+- oraclejdk8
+deploy:
+  provider: heroku
+  api_key:
+    secure: yhRqc0OwhmKCB+1lVnZGOpxpHPeqSWRi0cruCqW/Uwhath/fTMGZt5SHV2jZSbDBYt71HytrGtQKtVghPEPxopuYDp4Gl5z3w1dsoHAImGCmTpSVzAGSi8Sr3FwYRDCS6g1k/dW/r76aMSOprGVdFeBH+QvurlrGciLWPwwUENrb5ezaf75EG5Bj1VD0gxTfqrd5wTH3nqC/0Trjv/D8DZrlxBTqa+FOvi5FIEM4QnE8mFxX9OK+b3KC6blj52tlqNSTPbTzWHlIH2mHtqo4TlVDPEaDxo8TnKuZ6p2asH6ZsGByocJ8/kk8MP5bgjNhyyT3WNNSrFJP4BLRlwifFZfCQCj103JRSEe0k+cBXrFMg65SkxgxAcV3cvajOGaiv/GasEAtrAnbxhpvPgrWEtvqjWbIeGKR3qabEudQshXUsmmTbmaZrwFY9qQHV1+/+noL0dF0fP4A/Hetn8Wtrw5dD/VuG8apeve3gKK+Yz/d7BKSQ/tC4g+yZc8gnfhjg2gt7pkFlZDYKu4zrIu99+gjDHjVG+YoUmKBYUWuyZ4akElMhOasBrCdO7bK5e611BunAvA+N/+xLNkac7PK0xw5Z91x1j3vvEPFCgGDgc/wq+gC/6fFLL3BLugu9rzYNuYcp3QcqC3IQ6KkCnHpTQ4XsomM4MJzxviQTYdHgZ4=
+  app: wtcompliments
+  on:
+    repo: tylerjromeo/compliments-webservice
+    branch: master
