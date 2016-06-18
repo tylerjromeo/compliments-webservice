@@ -33,8 +33,8 @@ public class UserController {
         String email1 = (email == null) ? "Tyler@example.com" : email;
         String email2 = (email == null) ? "Kevin@example.com" : email;
         List<User> users = new ArrayList<User>(2);
-        users.add(new User("0", email1, "http://placekitten.com/400/200", 0, 0));
-        users.add(new User("1", email2, "http://placekitten.com/300/200", 0, 0));
+        users.add(new User("0", email1, "Tyler Romeo", "http://placekitten.com/400/200", 0, 0));
+        users.add(new User("1", email2, "Kevin Welcher", "http://placekitten.com/300/200", 0, 0));
         return new PaginatedList<User>(2, offset, numResults, "http://localhost:8080/users?offset=10&numResults=10", users);
     }
 
@@ -49,6 +49,6 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
     public User getById(@PathVariable("id") String id) {
-        return new User(id, "Tyler@example.com", "http://placekitten.com/400/200", 0, 0);
+        return new User(id, "Tyler@example.com", "Tyler Romeo", "http://placekitten.com/400/200", 0, 0);
     }
 }

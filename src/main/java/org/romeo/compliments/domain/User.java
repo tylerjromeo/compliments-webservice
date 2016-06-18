@@ -11,14 +11,16 @@ import io.swagger.annotations.ApiModelProperty;
 public class User {
 
     private String id;
+    private String name;
     private String email;
     private String imageUrl;
     private int complimentsSent;
     private int complimentsReceived;
 
-    public User(String email, String id, String imageUrl, int complimentsSent, int complimentsReceived) {
+    public User(String email, String id, String name, String imageUrl, int complimentsSent, int complimentsReceived) {
         this.email = email;
         this.id = id;
+        this.name = name;
         this.imageUrl = imageUrl;
         this.complimentsSent = complimentsSent;
         this.complimentsReceived = complimentsReceived;
@@ -40,6 +42,16 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @JsonProperty(required = true)
+    @ApiModelProperty(notes = "The user's name", required = true)
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @JsonProperty(required = false)
