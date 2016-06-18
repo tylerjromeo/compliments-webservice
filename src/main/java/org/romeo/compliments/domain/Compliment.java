@@ -18,6 +18,10 @@ public class Compliment {
     private String contents;
     private Date sendDate;
 
+    public Compliment() {
+
+    }
+
     private Compliment(Builder builder) {
         setId(builder.id);
         setFromId(builder.fromId);
