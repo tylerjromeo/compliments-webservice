@@ -26,7 +26,7 @@ public class User {
     @OneToMany
     private List<Compliment> complimentsReceived;
 
-    protected User() {
+    public User() {
 
     }
 

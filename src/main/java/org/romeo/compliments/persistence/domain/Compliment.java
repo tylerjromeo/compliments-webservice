@@ -28,7 +28,7 @@ public class Compliment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date sendDate;
 
-    protected Compliment() {
+    public Compliment() {
 
     }
 }
