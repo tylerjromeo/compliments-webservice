@@ -6,6 +6,7 @@ import org.romeo.compliments.web.domain.PaginatedList;
 import org.romeo.compliments.web.domain.User;
 import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,13 +48,13 @@ public class UserController {
             @RequestParam(defaultValue = "10") int numResults) {
         //TODO: filter by email
         List<User> users = new ArrayList<User>();
-        Iterable<org.romeo.compliments.persistence.domain.User> dbUsers = userRepository.findAll(new PageRequest(page, numResults));
+        Page<org.romeo.compliments.persistence.domain.User> dbUsers = userRepository.findAll(new PageRequest(page, numResults));
         for(org.romeo.compliments.persistence.domain.User dbUser : dbUsers) {
             users.add(User.fromDbUser(dbUser));
         }
         //TODO: get real url from web request
         //TODO: don't return a url if this is the last page of results
-        return new PaginatedList<User>(page, users.size(), String.format("http://localhost:8080/users?page=%d&numResults=%d", page + 1, numResults), users);
+        return new PaginatedList<>(dbUsers.getTotalElements(), dbUsers.getNumber(), dbUsers.getNumberOfElements(), String.format("http://localhost:8080/users?page=%d&numResults=%d", page + 1, numResults), users);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/users/{id}", produces = "application/json")

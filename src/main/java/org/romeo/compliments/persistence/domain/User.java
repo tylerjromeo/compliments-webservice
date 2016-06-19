@@ -1,6 +1,7 @@
 package org.romeo.compliments.persistence.domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,9 +22,9 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String imageUrl;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Compliment> complimentsSent;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Compliment> complimentsReceived;
 
     public User() {
@@ -34,6 +35,8 @@ public class User {
         this.name = name;
         this.email = email;
         this.imageUrl = imageUrl;
+        this.complimentsSent = new ArrayList<>();
+        this.complimentsReceived = new ArrayList<>();
     }
 
     public long getId() {

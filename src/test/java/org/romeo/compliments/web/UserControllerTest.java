@@ -3,11 +3,9 @@ package org.romeo.compliments.web;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.romeo.compliments.MainApplication;
 import org.romeo.compliments.persistence.UserRepository;
+import org.romeo.compliments.web.domain.PaginatedList;
 import org.romeo.compliments.web.domain.User;
 import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,10 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 ;
 
@@ -32,38 +32,89 @@ import static org.mockito.Mockito.*;
 public class UserControllerTest {
 
     @Autowired
-    @InjectMocks
     UserController userController;
 
-    @Mock
+    @Autowired
     UserRepository userRepository;
+
+    List<org.romeo.compliments.persistence.domain.User> testUsers;
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        userRepository.deleteAll();
+
+        testUsers = new ArrayList<>();
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("a", "b", "c"));
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("d", "e", "f"));
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("g", "h", "i"));
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("j", "k", "l"));
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("m", "n", "o"));
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("p", "q", "r"));
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("s", "t", "u"));
+        testUsers.add(new org.romeo.compliments.persistence.domain.User("w", "x", "y"));
+        userRepository.save(testUsers);
     }
 
     @Test
     public void testGetAll() throws Exception {
+        String email = null;
+        int pageNum = 0;
+        int numResults = 5;
+        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
 
+        assertEquals(testUsers.size(), results.getTotalResults());
+        assertEquals(pageNum, results.getPage());
+        assertEquals(numResults, results.getCount());
+        for (User u: results.getResults()) {
+            assertNotNull(u);
+            assertNotNull(u.getImageUrl());
+            assertNotNull(u.getName());
+            assertNotNull(u.getEmail());
+        }
+    }
+
+    @Test
+    public void testGetAll_SecondPage() throws Exception {
+        String email = null;
+        int pageNum = 1;
+        int numResults = 5;
+        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
+
+        assertEquals(testUsers.size(), results.getTotalResults());
+        assertEquals(pageNum, results.getPage());
+        assertEquals(testUsers.size() - (pageNum * numResults), results.getCount());
+        for (User u: results.getResults()) {
+            assertNotNull(u);
+            assertNotNull(u.getImageUrl());
+            assertNotNull(u.getName());
+            assertNotNull(u.getEmail());
+        }
+    }
+
+    @Test
+    public void testGetAll_EmptyPage() throws Exception {
+        String email = null;
+        int pageNum = 100;
+        int numResults = 5;
+        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
+
+        assertEquals(testUsers.size(), results.getTotalResults());
+        assertEquals(pageNum, results.getPage());
+        assertEquals(0, results.getCount());
+        assertTrue(results.getResults().isEmpty());
     }
 
     @Test
     public void testGetById() throws Exception {
-        long id = 12341234;
-        org.romeo.compliments.persistence.domain.User testUser = mock(org.romeo.compliments.persistence.domain.User.class);
-        when(userRepository.findOne(id)).thenReturn(testUser);
-        User result = userController.getById(id);
-        assertEquals(result, User.fromDbUser(testUser));
-        verify(userRepository).findOne(id);
+        Iterable<org.romeo.compliments.persistence.domain.User> allUsers = userRepository.findAll();
+        org.romeo.compliments.persistence.domain.User userToGet = allUsers.iterator().next();
+        User result = userController.getById(userToGet.getId());
+        assertEquals(result, User.fromDbUser(userToGet));
     }
 
     @Test(expected = ResourceNotFoundException.class)
     public void testGetById_IdNotFound() throws Exception {
         long id = 12341234;
-        when(userRepository.findOne(id)).thenReturn(null);
         userController.getById(id);
-        verify(userRepository).findAll();
-        verify(userRepository).findOne(id);
     }
 }

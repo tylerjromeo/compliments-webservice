@@ -43,7 +43,7 @@ public class ComplimentController {
         compliments.add(new Compliment.Builder().id("1").toId(to).fromId(from).contents("You are great!").sendDate(new Date()).build());
         compliments.add(new Compliment.Builder().id("2").toId(to).fromId(from).contents("You are really great!").sendDate(new Date()).build());
 
-        return new PaginatedList<Compliment>(page, numResults, "http://localhost:8080/compliments?to=1&numResults=10&page=2", compliments);
+        return new PaginatedList<>(2l, page, numResults, "http://localhost:8080/compliments?to=1&numResults=10&page=2", compliments);
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/compliments", produces = "application/json")

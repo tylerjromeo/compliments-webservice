@@ -12,16 +12,28 @@ import java.util.List;
  */
 public class PaginatedList<T> {
 
+    private long totalResults;
     private int page;
     private int count;
     private String next;
     private List<T> results;
 
-    public PaginatedList(int page, int count, String next, List<T> results) {
+    public PaginatedList(long totalResults, int page, int count, String next, List<T> results) {
+        this.totalResults = totalResults;
         this.page = page;
         this.count = count;
         this.next = next;
         this.results = results;
+    }
+
+    @JsonProperty(required = true)
+    @ApiModelProperty(notes = "The total number of results available from the service", required = true)
+    public long getTotalResults() {
+        return totalResults;
+    }
+
+    public void setTotalResults(long totalResults) {
+        this.totalResults = totalResults;
     }
 
     @JsonProperty(required = true)
