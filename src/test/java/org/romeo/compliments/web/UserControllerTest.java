@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MainApplication.class)
-@TestPropertySource(locations="classpath:test.properties")
+@TestPropertySource(locations = "classpath:test.properties")
 @WebIntegrationTest
 public class UserControllerTest {
 
@@ -67,7 +67,10 @@ public class UserControllerTest {
         assertEquals(testUsers.size(), results.getTotalResults());
         assertEquals(pageNum, results.getPage());
         assertEquals(numResults, results.getCount());
-        for (User u: results.getResults()) {
+        assertTrue(!results.getNext().isEmpty());
+        assertTrue(String.format("next url: %s should contain page=%d", results.getNext(), pageNum + 1), results.getNext().contains("page=" + (pageNum + 1)));
+        assertTrue(String.format("next url: %s should contain numResults=%d", results.getNext(), numResults), results.getNext().contains("numResults=" + numResults));
+        for (User u : results.getResults()) {
             assertNotNull(u);
             assertNotNull(u.getImageUrl());
             assertNotNull(u.getName());
@@ -85,12 +88,22 @@ public class UserControllerTest {
         assertEquals(testUsers.size(), results.getTotalResults());
         assertEquals(pageNum, results.getPage());
         assertEquals(testUsers.size() - (pageNum * numResults), results.getCount());
-        for (User u: results.getResults()) {
+        for (User u : results.getResults()) {
             assertNotNull(u);
             assertNotNull(u.getImageUrl());
             assertNotNull(u.getName());
             assertNotNull(u.getEmail());
         }
+    }
+
+    @Test
+    public void testGetAll_LastPage() throws Exception {
+        String email = null;
+        int pageNum = 0;
+        int numResults = 30;
+        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
+
+        assertTrue(results.getNext().isEmpty());
     }
 
     @Test
