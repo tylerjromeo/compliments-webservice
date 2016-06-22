@@ -1,8 +1,12 @@
 package org.romeo.compliments.web;
 
 import io.swagger.annotations.*;
+import org.romeo.compliments.persistence.ComplimentRepository;
 import org.romeo.compliments.web.domain.Compliment;
 import org.romeo.compliments.web.domain.PaginatedList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +23,9 @@ import java.util.List;
 @RestController
 public class ComplimentController {
 
+    @Autowired
+    ComplimentRepository complimentRepository;
+
     @RequestMapping(method = RequestMethod.GET, path = "/compliments", produces = "application/json")
     @ApiOperation(value = "Get Compliments", nickname = "Get Compliments")
     @ApiImplicitParams({
@@ -32,19 +39,40 @@ public class ComplimentController {
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
-    public PaginatedList<Compliment> getCompliments(
-            @RequestParam(required = false) String to,
-            @RequestParam(required = false) String from,
+    public PaginatedList<Compliment> getAll(
+            @RequestParam(required = false) Long to,
+            @RequestParam(required = false) Long from,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        if (to == null) to = "1";
-        if (from == null) from = "2";
-        List<Compliment> compliments = new ArrayList<Compliment>(2);
-//        compliments.add(new Compliment.Builder().id("1").toId(to).fromId(from).contents("You are great!").sendDate(new Date()).build());
-//        compliments.add(new Compliment.Builder().id("2").toId(to).fromId(from).contents("You are really great!").sendDate(new Date()).build());
+        List<Compliment> compliments = new ArrayList<>();
+        //TODO: return a 400 error if both to and from are supplied
+        String idParam = "";
+        Page<org.romeo.compliments.persistence.domain.Compliment> complimentPage;
+        if (to != null) {
+            complimentPage = complimentRepository.findByToId(to, new PageRequest(page, size));
+            idParam = String.format("&to=%d", to);
+        } else if (from != null) {
+            complimentPage = complimentRepository.findByFromId(from, new PageRequest(page, size));
+            idParam = String.format("&from=%d", from);
+        } else {
+            //TODO: return a 400 error if neither to or from are supplied
+            //one day we might just return all compliments if none are supplied
+            return null;
+        }
 
-        return new PaginatedList<>(2l, page, size, "http://localhost:8080/compliments?to=1&size=10&page=2", compliments);
+        if (complimentPage != null) {
+
+            String next = "";
+            if (complimentPage.hasNext()) {
+                next = String.format("/compliments?page=%d&size=%d%s", page + 1, size, idParam);
+            }
+
+            return new PaginatedList<>(complimentPage.getTotalElements(), complimentPage.getNumber(), complimentPage.getNumberOfElements(), next, compliments);
+        } else {
+            //TODO: return error
+            return null;
+        }
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/compliments", consumes = "application/json", produces = "application/json")
@@ -57,7 +85,7 @@ public class ComplimentController {
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
-    public Compliment addCompliment(@RequestBody @Validated Compliment compliment) {
+    public Compliment add(@RequestBody @Validated Compliment compliment) {
         return compliment;
     }
 }

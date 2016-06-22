@@ -1,5 +1,6 @@
 package org.romeo.compliments.web;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-
-;
 
 /**
  * User: tylerromeo
@@ -43,8 +42,6 @@ public class UserControllerTest {
 
     @Before
     public void setup() {
-        userRepository.deleteAll();
-
         testUsers = new ArrayList<>();
         testUsers.add(new org.romeo.compliments.persistence.domain.User("a", "b", "c"));
         testUsers.add(new org.romeo.compliments.persistence.domain.User("d", "e", "f"));
@@ -55,6 +52,11 @@ public class UserControllerTest {
         testUsers.add(new org.romeo.compliments.persistence.domain.User("s", "t", "u"));
         testUsers.add(new org.romeo.compliments.persistence.domain.User("w", "x", "y"));
         userRepository.save(testUsers);
+    }
+
+    @After
+    public void tearDown() {
+        userRepository.deleteAll();
     }
 
     @Test
