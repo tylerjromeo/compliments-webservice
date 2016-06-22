@@ -8,10 +8,11 @@ import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "User email to filter on", required = false, dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "page", value = "Page number of results to return", defaultValue = "0", required = false, dataType = "int", paramType = "query"),
-            @ApiImplicitParam(name = "numResults", value = "Total number of results to return. Maximum 100", defaultValue = "10", required = false, dataType = "int", paramType = "query")
+            @ApiImplicitParam(name = "size", value = "Total number of results to return. Maximum 100", defaultValue = "10", required = false, dataType = "int", paramType = "query")
     })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = User.class),
@@ -45,17 +46,16 @@ public class UserController {
     public PaginatedList<User> getAll(
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int numResults) {
+            @RequestParam(defaultValue = "10") int size) {
         //TODO: filter by email
         List<User> users = new ArrayList<>();
-        Page<org.romeo.compliments.persistence.domain.User> dbUsersPage = userRepository.findAll(new PageRequest(page, numResults));
+        Page<org.romeo.compliments.persistence.domain.User> dbUsersPage = userRepository.findAll(new PageRequest(page, size));
         for(org.romeo.compliments.persistence.domain.User dbUser : dbUsersPage) {
             users.add(User.fromDbUser(dbUser));
         }
-        //TODO: get real url from web request
         String next = "";
         if(dbUsersPage.hasNext()) {
-            next = String.format("http://localhost:8080/users?page=%d&numResults=%d", page + 1, numResults);
+            next = String.format("/users?page=%d&size=%d", page + 1, size);
         }
         return new PaginatedList<>(dbUsersPage.getTotalElements(), dbUsersPage.getNumber(), dbUsersPage.getNumberOfElements(), next, users);
     }

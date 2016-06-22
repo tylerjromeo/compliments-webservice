@@ -61,15 +61,15 @@ public class UserControllerTest {
     public void testGetAll() throws Exception {
         String email = null;
         int pageNum = 0;
-        int numResults = 5;
-        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
+        int size = 5;
+        PaginatedList<User> results = userController.getAll(email, pageNum, size);
 
         assertEquals(testUsers.size(), results.getTotalResults());
         assertEquals(pageNum, results.getPage());
-        assertEquals(numResults, results.getCount());
+        assertEquals(size, results.getCount());
         assertTrue(!results.getNext().isEmpty());
         assertTrue(String.format("next url: %s should contain page=%d", results.getNext(), pageNum + 1), results.getNext().contains("page=" + (pageNum + 1)));
-        assertTrue(String.format("next url: %s should contain numResults=%d", results.getNext(), numResults), results.getNext().contains("numResults=" + numResults));
+        assertTrue(String.format("next url: %s should contain size=%d", results.getNext(), size), results.getNext().contains("size=" + size));
         for (User u : results.getResults()) {
             assertNotNull(u);
             assertNotNull(u.getImageUrl());
@@ -82,12 +82,12 @@ public class UserControllerTest {
     public void testGetAll_SecondPage() throws Exception {
         String email = null;
         int pageNum = 1;
-        int numResults = 5;
-        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
+        int size = 5;
+        PaginatedList<User> results = userController.getAll(email, pageNum, size);
 
         assertEquals(testUsers.size(), results.getTotalResults());
         assertEquals(pageNum, results.getPage());
-        assertEquals(testUsers.size() - (pageNum * numResults), results.getCount());
+        assertEquals(testUsers.size() - (pageNum * size), results.getCount());
         for (User u : results.getResults()) {
             assertNotNull(u);
             assertNotNull(u.getImageUrl());
@@ -100,8 +100,8 @@ public class UserControllerTest {
     public void testGetAll_LastPage() throws Exception {
         String email = null;
         int pageNum = 0;
-        int numResults = 30;
-        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
+        int size = 30;
+        PaginatedList<User> results = userController.getAll(email, pageNum, size);
 
         assertTrue(results.getNext().isEmpty());
     }
@@ -110,8 +110,8 @@ public class UserControllerTest {
     public void testGetAll_EmptyPage() throws Exception {
         String email = null;
         int pageNum = 100;
-        int numResults = 5;
-        PaginatedList<User> results = userController.getAll(email, pageNum, numResults);
+        int size = 5;
+        PaginatedList<User> results = userController.getAll(email, pageNum, size);
 
         assertEquals(testUsers.size(), results.getTotalResults());
         assertEquals(pageNum, results.getPage());
