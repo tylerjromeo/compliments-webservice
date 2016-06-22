@@ -12,9 +12,9 @@ import java.util.Date;
  */
 public class Compliment {
 
-    private String id;
-    private String fromId;
-    private String toId;
+    private long id;
+    private long fromId;
+    private long toId;
     private String contents;
     private Date sendDate;
 
@@ -22,41 +22,41 @@ public class Compliment {
 
     }
 
-    private Compliment(Builder builder) {
-        setId(builder.id);
-        setFromId(builder.fromId);
-        setToId(builder.toId);
-        setContents(builder.contents);
-        setSendDate(builder.sendDate);
+    public Compliment(long id, long fromId, long toId, String contents, Date sendDate) {
+        this.id = id;
+        this.fromId = fromId;
+        this.toId = toId;
+        this.contents = contents;
+        this.sendDate = sendDate;
     }
 
     @JsonProperty(required = true)
     @ApiModelProperty(notes = "Unique identifier for the compliment", required = true)
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
     @JsonProperty(required = false)
     @ApiModelProperty(notes = "Id of the user who sent the compliment", required = false)
-    public String getFromId() {
+    public long getFromId() {
         return fromId;
     }
 
-    public void setFromId(String fromId) {
+    public void setFromId(long fromId) {
         this.fromId = fromId;
     }
 
     @JsonProperty(required = true)
     @ApiModelProperty(notes = "Id of the user the compliment was sent to", required = true)
-    public String getToId() {
+    public long getToId() {
         return toId;
     }
 
-    public void setToId(String toId) {
+    public void setToId(long toId) {
         this.toId = toId;
     }
 
@@ -80,43 +80,7 @@ public class Compliment {
         this.sendDate = sendDate;
     }
 
-    public static final class Builder {
-        private String id;
-        private String fromId;
-        private String toId;
-        private String contents;
-        private Date sendDate;
-
-        public Builder() {
-        }
-
-        public Builder id(String val) {
-            id = val;
-            return this;
-        }
-
-        public Builder fromId(String val) {
-            fromId = val;
-            return this;
-        }
-
-        public Builder toId(String val) {
-            toId = val;
-            return this;
-        }
-
-        public Builder contents(String val) {
-            contents = val;
-            return this;
-        }
-
-        public Builder sendDate(Date val) {
-            sendDate = val;
-            return this;
-        }
-
-        public Compliment build() {
-            return new Compliment(this);
-        }
+    public static Compliment fromDbCompliment(org.romeo.compliments.persistence.domain.Compliment compliment) {
+        return new Compliment(compliment.getId(), compliment.getFrom().getId(), compliment.getTo().getId(), compliment.getContents(), compliment.getSendDate());
     }
 }

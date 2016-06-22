@@ -41,8 +41,8 @@ public class ComplimentController {
         if (to == null) to = "1";
         if (from == null) from = "2";
         List<Compliment> compliments = new ArrayList<Compliment>(2);
-        compliments.add(new Compliment.Builder().id("1").toId(to).fromId(from).contents("You are great!").sendDate(new Date()).build());
-        compliments.add(new Compliment.Builder().id("2").toId(to).fromId(from).contents("You are really great!").sendDate(new Date()).build());
+//        compliments.add(new Compliment.Builder().id("1").toId(to).fromId(from).contents("You are great!").sendDate(new Date()).build());
+//        compliments.add(new Compliment.Builder().id("2").toId(to).fromId(from).contents("You are really great!").sendDate(new Date()).build());
 
         return new PaginatedList<>(2l, page, size, "http://localhost:8080/compliments?to=1&size=10&page=2", compliments);
     }
