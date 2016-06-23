@@ -31,7 +31,11 @@ public class Compliment {
         this.fromId = fromId;
         this.toId = toId;
         this.contents = contents;
-        this.sendDate = sendDate;
+        if(sendDate == null) {
+            this.sendDate = null;
+        } else {
+            this.sendDate = new Date(sendDate.getTime());
+        }
     }
 
     public Compliment(long fromId, long toId, String contents) {
@@ -83,11 +87,18 @@ public class Compliment {
     @JsonProperty(required = true)
     @ApiModelProperty(notes = "The date the compliment was sent", required = true)
     public Date getSendDate() {
-        return sendDate;
+        if(sendDate == null) {
+            return null;
+        }
+        return new Date(sendDate.getTime());
     }
 
     public void setSendDate(Date sendDate) {
-        this.sendDate = sendDate;
+        if(sendDate == null) {
+            this.sendDate = null;
+        } else {
+            this.sendDate = new Date(sendDate.getTime());
+        }
     }
 
     public static Compliment fromDbCompliment(org.romeo.compliments.persistence.domain.Compliment compliment) {

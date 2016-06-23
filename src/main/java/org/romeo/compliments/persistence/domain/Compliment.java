@@ -69,11 +69,18 @@ public class Compliment {
     }
 
     public Date getSendDate() {
-        return sendDate;
+        if(sendDate == null) {
+            return null;
+        }
+        return new Date(sendDate.getTime());
     }
 
     public void setSendDate(Date sendDate) {
-        this.sendDate = sendDate;
+        if(sendDate == null) {
+            this.sendDate = null;
+        } else {
+            this.sendDate = new Date(sendDate.getTime());
+        }
     }
 
     public static Compliment fromWebCompliment(org.romeo.compliments.web.domain.Compliment c) {

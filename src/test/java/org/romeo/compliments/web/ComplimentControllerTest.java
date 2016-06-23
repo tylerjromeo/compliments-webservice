@@ -98,7 +98,7 @@ public class ComplimentControllerTest {
             assertNotNull(c);
             assertNotNull(c.getContents());
             assertNotNull(c.getSendDate());
-            assertEquals(to, new Long(c.getToId()));
+            assertEquals(to, Long.valueOf(c.getToId()));
         }
     }
 
@@ -121,7 +121,7 @@ public class ComplimentControllerTest {
             assertNotNull(c);
             assertNotNull(c.getContents());
             assertNotNull(c.getSendDate());
-            assertEquals(from, new Long(c.getFromId()));
+            assertEquals(from, Long.valueOf(c.getFromId()));
         }
     }
 
@@ -164,8 +164,8 @@ public class ComplimentControllerTest {
             assertNotNull(c);
             assertNotNull(c.getContents());
             assertNotNull(c.getSendDate());
-            assertEquals(to, new Long(c.getToId()));
-            assertEquals(from, new Long(c.getFromId()));
+            assertEquals(to, Long.valueOf(c.getToId()));
+            assertEquals(from, Long.valueOf(c.getFromId()));
         }
     }
 

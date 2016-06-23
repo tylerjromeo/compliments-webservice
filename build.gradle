@@ -11,7 +11,8 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'spring-boot' 
+apply plugin: 'spring-boot'
+apply plugin: 'findbugs'
 
 jar {
 	baseName = 'compliment-service'
@@ -42,4 +43,11 @@ dependencies {
 //stage task for heroku. Runs on each deploy
 task stage {
 	dependsOn build
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
 }
