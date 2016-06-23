@@ -120,4 +120,21 @@ public class ComplimentControllerTest {
         }
     }
 
+    @Test
+    public void testAdd() {
+        String content = "new compliment content";
+        Compliment compliment = new Compliment(testUser1.getId(), testUser2.getId(), content);
+
+        complimentController.add(compliment);
+
+        org.romeo.compliments.persistence.domain.Compliment dbCompliment = null;
+        for(org.romeo.compliments.persistence.domain.Compliment c : complimentRepository.findAll()) {
+            if(c.getFrom().getId() == testUser1.getId() && c.getTo().getId() == testUser2.getId() && c.getContents().equals(content)){
+                dbCompliment = c;
+            }
+        }
+
+        assertNotNull("Added compliment not found in db", dbCompliment);
+        assertNotNull(dbCompliment.getSendDate());
+    }
 }

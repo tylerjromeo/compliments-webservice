@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class Compliment {
 
-    private long id;
+    private Long id;
     private long fromId;
     private long toId;
     private String contents;
@@ -30,13 +30,19 @@ public class Compliment {
         this.sendDate = sendDate;
     }
 
+    public Compliment(long fromId, long toId, String contents) {
+        this.fromId = fromId;
+        this.toId = toId;
+        this.contents = contents;
+    }
+
     @JsonProperty(required = true)
     @ApiModelProperty(notes = "Unique identifier for the compliment", required = true)
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

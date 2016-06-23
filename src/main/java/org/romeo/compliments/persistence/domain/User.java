@@ -31,6 +31,10 @@ public class User {
 
     }
 
+    public User(long id) {
+        this.id = id;
+    }
+
     public User(String name, String email, String imageUrl) {
         this.name = name;
         this.email = email;

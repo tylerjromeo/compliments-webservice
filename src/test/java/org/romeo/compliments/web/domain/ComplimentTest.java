@@ -15,7 +15,7 @@ public class ComplimentTest {
 
     @Test
     public void testFromDbCompliment() throws Exception {
-        long id = 1235L;
+        Long id = 1235L;
         org.romeo.compliments.persistence.domain.User to = new org.romeo.compliments.persistence.domain.User();
         to.setId(123412341L);
         org.romeo.compliments.persistence.domain.User from = new org.romeo.compliments.persistence.domain.User();

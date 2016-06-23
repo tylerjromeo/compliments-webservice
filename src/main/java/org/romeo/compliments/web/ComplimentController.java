@@ -47,7 +47,7 @@ public class ComplimentController {
 
         List<Compliment> compliments = new ArrayList<>();
         //TODO: return a 400 error if both to and from are supplied
-        String idParam = "";
+        String idParam;
         Page<org.romeo.compliments.persistence.domain.Compliment> complimentPage;
         if (to != null) {
             complimentPage = complimentRepository.findByToId(to, new PageRequest(page, size));
@@ -86,6 +86,8 @@ public class ComplimentController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
     public Compliment add(@RequestBody @Validated Compliment compliment) {
-        return compliment;
+        org.romeo.compliments.persistence.domain.Compliment dbCompliment = org.romeo.compliments.persistence.domain.Compliment.fromWebCompliment(compliment);
+        complimentRepository.save(dbCompliment);
+        return Compliment.fromDbCompliment(dbCompliment);
     }
 }

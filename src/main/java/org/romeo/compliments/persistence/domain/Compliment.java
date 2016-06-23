@@ -1,8 +1,6 @@
 package org.romeo.compliments.persistence.domain;
 
 
-import org.springframework.data.annotation.CreatedDate;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -17,14 +15,14 @@ public class Compliment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
     @ManyToOne(optional = false)
     private User from;
     @ManyToOne(optional = false)
     private User to;
     @Column(nullable = false)
     private String contents;
-    @CreatedDate
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date sendDate;
 
@@ -38,11 +36,11 @@ public class Compliment {
         this.contents = contents;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -76,5 +74,9 @@ public class Compliment {
 
     public void setSendDate(Date sendDate) {
         this.sendDate = sendDate;
+    }
+
+    public static Compliment fromWebCompliment(org.romeo.compliments.web.domain.Compliment c) {
+        return new Compliment(new User(c.getFromId()), new User(c.getToId()), c.getContents());
     }
 }
