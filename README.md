@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/tylerjromeo/compliments-webservice.svg?branch=develop)](https://travis-ci.org/tylerjromeo/compliments-webservice)
+
+
 # Compliments webservice.
 
 web service for compliments webapp.
