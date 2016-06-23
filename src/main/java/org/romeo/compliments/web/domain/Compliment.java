@@ -3,6 +3,7 @@ package org.romeo.compliments.web.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -13,8 +14,11 @@ import java.util.Date;
 public class Compliment {
 
     private Long id;
+    @NotNull
     private long fromId;
+    @NotNull
     private long toId;
+    @NotNull
     private String contents;
     private Date sendDate;
 
