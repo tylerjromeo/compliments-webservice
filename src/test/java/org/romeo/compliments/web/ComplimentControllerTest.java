@@ -49,6 +49,7 @@ public class ComplimentControllerTest {
     org.romeo.compliments.persistence.domain.Compliment testCompliment1;
     org.romeo.compliments.persistence.domain.Compliment testCompliment2;
     org.romeo.compliments.persistence.domain.Compliment testCompliment3;
+    org.romeo.compliments.persistence.domain.Compliment testCompliment4;
 
     @Before
     public void setup() {
@@ -62,10 +63,12 @@ public class ComplimentControllerTest {
         testCompliment1 = new org.romeo.compliments.persistence.domain.Compliment(testUser1, testUser2, "1 I think you are great. Love, 2");
         testCompliment2 = new org.romeo.compliments.persistence.domain.Compliment(testUser1, testUser2, "1 I think you are really great. Love, 2");
         testCompliment3 = new org.romeo.compliments.persistence.domain.Compliment(testUser2, testUser3, "2 I think you are great. Love, 3");
+        testCompliment4 = new org.romeo.compliments.persistence.domain.Compliment(testUser1, testUser3, "1 I think you are great. Love, 3");
         complimentList = new ArrayList<>();
         complimentList.add(testCompliment1);
         complimentList.add(testCompliment2);
         complimentList.add(testCompliment3);
+        complimentList.add(testCompliment4);
 
         complimentRepository.save(complimentList);
     }
@@ -90,6 +93,7 @@ public class ComplimentControllerTest {
         assertTrue(!results.getNext().isEmpty());
         assertTrue(String.format("next url: %s should contain page=%d", results.getNext(), page + 1), results.getNext().contains("page=" + (page + 1)));
         assertTrue(String.format("next url: %s should contain size=%d", results.getNext(), size), results.getNext().contains("size=" + size));
+        assertTrue(!results.getResults().isEmpty());
         for (Compliment c : results.getResults()) {
             assertNotNull(c);
             assertNotNull(c.getContents());
@@ -106,16 +110,61 @@ public class ComplimentControllerTest {
         int size = 1;
         PaginatedList<Compliment> results = complimentController.getAll(to, from, page, size);
 
-        assertEquals(2, results.getTotalResults());
+        assertEquals(3, results.getTotalResults());
         assertEquals(page, results.getPage());
         assertEquals(1, results.getCount());
         assertTrue(!results.getNext().isEmpty());
         assertTrue(String.format("next url: %s should contain page=%d", results.getNext(), page + 1), results.getNext().contains("page=" + (page + 1)));
         assertTrue(String.format("next url: %s should contain size=%d", results.getNext(), size), results.getNext().contains("size=" + size));
+        assertTrue(!results.getResults().isEmpty());
         for (Compliment c : results.getResults()) {
             assertNotNull(c);
             assertNotNull(c.getContents());
             assertNotNull(c.getSendDate());
+            assertEquals(from, new Long(c.getFromId()));
+        }
+    }
+
+    @Test
+    public void testGetAll_noIds() {
+        Long to = null;
+        Long from = null;
+        int page = 0;
+        int size = 1;
+        PaginatedList<Compliment> results = complimentController.getAll(to, from, page, size);
+
+        assertEquals(4, results.getTotalResults());
+        assertEquals(page, results.getPage());
+        assertEquals(1, results.getCount());
+        assertTrue(!results.getNext().isEmpty());
+        assertTrue(String.format("next url: %s should contain page=%d", results.getNext(), page + 1), results.getNext().contains("page=" + (page + 1)));
+        assertTrue(String.format("next url: %s should contain size=%d", results.getNext(), size), results.getNext().contains("size=" + size));
+        assertTrue(!results.getResults().isEmpty());
+        for (Compliment c : results.getResults()) {
+            assertNotNull(c);
+            assertNotNull(c.getContents());
+            assertNotNull(c.getSendDate());
+        }
+    }
+
+    @Test
+    public void testGetAll_toAndFrom() {
+        Long to = testUser3.getId();
+        Long from = testUser1.getId();
+        int page = 0;
+        int size = 1;
+        PaginatedList<Compliment> results = complimentController.getAll(to, from, page, size);
+
+        assertEquals(1, results.getTotalResults());
+        assertEquals(page, results.getPage());
+        assertEquals(1, results.getCount());
+        assertTrue(results.getNext().isEmpty());
+        assertTrue(!results.getResults().isEmpty());
+        for (Compliment c : results.getResults()) {
+            assertNotNull(c);
+            assertNotNull(c.getContents());
+            assertNotNull(c.getSendDate());
+            assertEquals(to, new Long(c.getToId()));
             assertEquals(from, new Long(c.getFromId()));
         }
     }
@@ -128,8 +177,8 @@ public class ComplimentControllerTest {
         complimentController.add(compliment);
 
         org.romeo.compliments.persistence.domain.Compliment dbCompliment = null;
-        for(org.romeo.compliments.persistence.domain.Compliment c : complimentRepository.findAll()) {
-            if(c.getFrom().getId() == testUser1.getId() && c.getTo().getId() == testUser2.getId() && c.getContents().equals(content)){
+        for (org.romeo.compliments.persistence.domain.Compliment c : complimentRepository.findAll()) {
+            if (c.getFrom().getId() == testUser1.getId() && c.getTo().getId() == testUser2.getId() && c.getContents().equals(content)) {
                 dbCompliment = c;
             }
         }
@@ -137,4 +186,5 @@ public class ComplimentControllerTest {
         assertNotNull("Added compliment not found in db", dbCompliment);
         assertNotNull(dbCompliment.getSendDate());
     }
+
 }

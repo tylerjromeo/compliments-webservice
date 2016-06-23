@@ -46,19 +46,20 @@ public class ComplimentController {
             @RequestParam(defaultValue = "10") int size) {
 
         List<Compliment> compliments = new ArrayList<>();
-        //TODO: return a 400 error if both to and from are supplied
         String idParam;
         Page<org.romeo.compliments.persistence.domain.Compliment> complimentPage;
-        if (to != null) {
+        if(to != null && from != null) {
+            complimentPage = complimentRepository.findByToIdAndFromId(to, from, new PageRequest(page, size));
+            idParam = String.format("&to=%d&from=%d", to, from);
+        } else if (to != null) {
             complimentPage = complimentRepository.findByToId(to, new PageRequest(page, size));
             idParam = String.format("&to=%d", to);
         } else if (from != null) {
             complimentPage = complimentRepository.findByFromId(from, new PageRequest(page, size));
             idParam = String.format("&from=%d", from);
         } else {
-            //TODO: return a 400 error if neither to or from are supplied
-            //one day we might just return all compliments if none are supplied
-            return null;
+            complimentPage = complimentRepository.findAll(new PageRequest(page, size));
+            idParam = "";
         }
 
         if (complimentPage != null) {
@@ -66,6 +67,10 @@ public class ComplimentController {
             String next = "";
             if (complimentPage.hasNext()) {
                 next = String.format("/compliments?page=%d&size=%d%s", page + 1, size, idParam);
+            }
+
+            for(org.romeo.compliments.persistence.domain.Compliment c: complimentPage.getContent()) {
+                compliments.add(Compliment.fromDbCompliment(c));
             }
 
             return new PaginatedList<>(complimentPage.getTotalElements(), complimentPage.getNumber(), complimentPage.getNumberOfElements(), next, compliments);

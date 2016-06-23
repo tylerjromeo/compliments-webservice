@@ -15,7 +15,9 @@ import org.springframework.data.repository.query.Param;
  */
 public interface ComplimentRepository extends PagingAndSortingRepository<Compliment, Long> {
 
-    Page<Compliment> findByToId(@Param("id") long toId, Pageable pageable);
+    Page<Compliment> findByToId(long toId, Pageable pageable);
 
-    Page<Compliment> findByFromId(@Param("id") long fromId, Pageable pageable);
+    Page<Compliment> findByFromId(long fromId, Pageable pageable);
+
+    Page<Compliment> findByToIdAndFromId(long toId, long fromId, Pageable pageable);
 }
