@@ -6,6 +6,7 @@ import org.romeo.compliments.persistence.UserRepository;
 import org.romeo.compliments.persistence.domain.User;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @SpringBootApplication
 @EnableSwagger2
+@EnableOAuth2Sso
 public class MainApplication {
 
     public static void main(String[] args) {
