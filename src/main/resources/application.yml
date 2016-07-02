@@ -1,13 +1,12 @@
-security:
-  oauth2:
-    client:
-      clientId: 615856025172-ihev8ca47vkpa0q00pgkkl50hohblirq.apps.googleusercontent.com
-      clientSecret: pmZfnr3_0F9mftGCG-vUVjS7
-      accessTokenUri: https://www.googleapis.com/oauth2/v3/token
-      userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
-      tokenName: oauth_token
-      authenticationScheme: query
-      clientAuthenticationScheme: form
-      scope: profile email
-    resource:
-      userInfoUri: https://www.googleapis.com/plus/v1/people/me
+google:
+  client:
+    clientId: 615856025172-ihev8ca47vkpa0q00pgkkl50hohblirq.apps.googleusercontent.com
+    clientSecret: pmZfnr3_0F9mftGCG-vUVjS7
+    accessTokenUri: https://www.googleapis.com/oauth2/v3/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+    scope: profile email
+  resource:
+    userInfoUri: https://www.googleapis.com/plus/v1/people/me
