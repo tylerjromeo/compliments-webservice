@@ -2,7 +2,10 @@ package org.romeo.compliments.web;
 
 import io.swagger.annotations.*;
 import org.romeo.compliments.persistence.ComplimentRepository;
+import org.romeo.compliments.persistence.UserRepository;
+import org.romeo.compliments.persistence.domain.User;
 import org.romeo.compliments.web.domain.Compliment;
+import org.romeo.compliments.web.domain.ComplimentRequest;
 import org.romeo.compliments.web.domain.PaginatedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +27,9 @@ public class ComplimentController {
 
     @Autowired
     ComplimentRepository complimentRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @RequestMapping(method = RequestMethod.GET, path = "/compliments", produces = "application/json")
     @ApiOperation(value = "Get Compliments", nickname = "Get Compliments")
@@ -90,7 +95,11 @@ public class ComplimentController {
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
-    public Compliment add(@RequestBody @Validated Compliment compliment) {
+    public Compliment add(@RequestBody @Validated ComplimentRequest complimentRequest) {
+        User user = userRepository.findByEmail(complimentRequest.getToEmail());
+        //TODO: handle failure
+        Compliment compliment = new Compliment(complimentRequest.getFromId(), user.getId(), complimentRequest.getContents());
+
         org.romeo.compliments.persistence.domain.Compliment dbCompliment = org.romeo.compliments.persistence.domain.Compliment.fromWebCompliment(compliment);
         complimentRepository.save(dbCompliment);
         return Compliment.fromDbCompliment(dbCompliment);

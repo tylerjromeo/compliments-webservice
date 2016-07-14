@@ -9,4 +9,5 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * Time: 10:04 AM
  */
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {
+    User findByEmail(String email);
 }

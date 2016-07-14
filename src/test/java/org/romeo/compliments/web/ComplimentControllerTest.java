@@ -8,6 +8,7 @@ import org.romeo.compliments.MainApplication;
 import org.romeo.compliments.persistence.ComplimentRepository;
 import org.romeo.compliments.persistence.UserRepository;
 import org.romeo.compliments.web.domain.Compliment;
+import org.romeo.compliments.web.domain.ComplimentRequest;
 import org.romeo.compliments.web.domain.PaginatedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -172,19 +173,28 @@ public class ComplimentControllerTest {
     @Test
     public void testAdd() {
         String content = "new compliment content";
-        Compliment compliment = new Compliment(testUser1.getId(), testUser2.getId(), content);
+        ComplimentRequest compliment = new ComplimentRequest(testUser1.getEmail(), content, testUser2.getId());
 
-        complimentController.add(compliment);
+        Compliment response = complimentController.add(compliment);
 
-        org.romeo.compliments.persistence.domain.Compliment dbCompliment = null;
-        for (org.romeo.compliments.persistence.domain.Compliment c : complimentRepository.findAll()) {
-            if (c.getFrom().getId() == testUser1.getId() && c.getTo().getId() == testUser2.getId() && c.getContents().equals(content)) {
-                dbCompliment = c;
-            }
-        }
+        org.romeo.compliments.persistence.domain.Compliment dbCompliment = complimentRepository.findById(response.getId());
+
+        assertNotNull(response);
+        assertEquals(testUser1.getId(), response.getToId());
+        assertEquals(compliment.getContents(), response.getContents());
+        assertEquals(testUser2.getId(), response.getFromId());
 
         assertNotNull("Added compliment not found in db", dbCompliment);
+        assertEquals(response.getId(), dbCompliment.getId());
+        assertEquals(response.getToId(), dbCompliment.getTo().getId());
+        assertEquals(response.getContents(), dbCompliment.getContents());
+        assertEquals(response.getFromId(), dbCompliment.getFrom().getId());
         assertNotNull(dbCompliment.getSendDate());
+    }
+
+    @Test
+    public void testAddByEmail_noEmailMatch() {
+
     }
 
 }

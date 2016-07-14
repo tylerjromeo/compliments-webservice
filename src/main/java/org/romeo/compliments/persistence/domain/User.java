@@ -19,7 +19,7 @@ public class User {
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
-    private String email;
+    private String email; //need to make email unique
     @Column(nullable = false)
     private String imageUrl;
     @OneToMany(fetch = FetchType.EAGER)
