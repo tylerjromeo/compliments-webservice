@@ -39,7 +39,7 @@ public class UserController {
             @ApiImplicitParam(name = "size", value = "Total number of results to return. Maximum 100", defaultValue = "10", required = false, dataType = "int", paramType = "query")
     })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = User.class),
+            @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
