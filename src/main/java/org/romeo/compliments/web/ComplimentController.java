@@ -97,7 +97,10 @@ public class ComplimentController {
             @ApiResponse(code = 500, message = "Failure")})
     public Compliment add(@RequestBody @Validated ComplimentRequest complimentRequest) {
         User user = userRepository.findByEmail(complimentRequest.getToEmail());
-        //TODO: handle failure
+        if(user == null) {
+            //TODO: users added this way should be marked so when they do log in we can ask for their name/picture
+            user = userRepository.save(new User(null, complimentRequest.getToEmail(), null));
+        }
         Compliment compliment = new Compliment(complimentRequest.getFromId(), user.getId(), complimentRequest.getContents());
 
         org.romeo.compliments.persistence.domain.Compliment dbCompliment = org.romeo.compliments.persistence.domain.Compliment.fromWebCompliment(compliment);

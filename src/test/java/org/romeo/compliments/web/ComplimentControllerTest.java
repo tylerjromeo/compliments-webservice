@@ -194,6 +194,31 @@ public class ComplimentControllerTest {
 
     @Test
     public void testAddByEmail_noEmailMatch() {
+        String newEmail = "test@example.com";
+        assertNull("new email address should not exist in the db", userRepository.findByEmail(newEmail));
+        String content = "new compliment content";
+        ComplimentRequest compliment = new ComplimentRequest(newEmail, content, testUser2.getId());
+
+        Compliment response = complimentController.add(compliment);
+
+        org.romeo.compliments.persistence.domain.Compliment dbCompliment = complimentRepository.findById(response.getId());
+
+        org.romeo.compliments.persistence.domain.User newUser = userRepository.findByEmail(newEmail);
+
+        assertNotNull("user with new email address should have been added to db", newUser);
+        assertEquals(newEmail, newUser.getEmail());
+
+        assertNotNull(response);
+        assertEquals(newUser.getId(), response.getToId());
+        assertEquals(compliment.getContents(), response.getContents());
+        assertEquals(testUser2.getId(), response.getFromId());
+
+        assertNotNull("Added compliment not found in db", dbCompliment);
+        assertEquals(response.getId(), dbCompliment.getId());
+        assertEquals(response.getToId(), dbCompliment.getTo().getId());
+        assertEquals(response.getContents(), dbCompliment.getContents());
+        assertEquals(response.getFromId(), dbCompliment.getFrom().getId());
+        assertNotNull(dbCompliment.getSendDate());
 
     }
 
