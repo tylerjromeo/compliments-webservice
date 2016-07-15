@@ -4,11 +4,13 @@ import io.swagger.annotations.*;
 import org.romeo.compliments.persistence.UserRepository;
 import org.romeo.compliments.web.domain.PaginatedList;
 import org.romeo.compliments.web.domain.User;
+import org.romeo.compliments.web.domain.UserRequest;
 import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -71,6 +73,26 @@ public class UserController {
             throw new ResourceNotFoundException();
         }
         return user;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/users", produces = "application/json")
+    @ApiOperation(value = "add User", nickname = "add User", notes = "this will create a new user. If the email address is already in the db, the user details will be populated. Otherwise a new user object will be created with the given data. This allows compliments that were sent before a user registered will still go to that user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Failure")
+    })
+    public User add(@RequestBody @Validated UserRequest user) {
+        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findByEmail(user.getEmail());
+        if(dbUser == null) {
+            dbUser = userRepository.save(new org.romeo.compliments.persistence.domain.User(user.getName(), user.getEmail(), user.getImageUrl()));
+        } else {
+            //TODO: User object will need a flag for if it has been "set up" check that here and throw a 400 if it's true
+            dbUser.setName(user.getName());
+            dbUser.setImageUrl(user.getImageUrl());
+            dbUser = userRepository.save(dbUser);
+        }
+        return User.fromDbUser(dbUser);
     }
 
 }

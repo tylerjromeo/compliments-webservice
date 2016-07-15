@@ -76,7 +76,6 @@ public class ComplimentControllerTest {
 
     @After
     public void tearDown() {
-        complimentRepository.deleteAll();
         userRepository.deleteAll();
     }
 

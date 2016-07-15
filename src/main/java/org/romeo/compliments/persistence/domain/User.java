@@ -22,9 +22,9 @@ public class User {
     private String email;
     @Column(nullable = true)
     private String imageUrl;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "from")
     private List<Compliment> complimentsSent;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "to")
     private List<Compliment> complimentsReceived;
 
     public User() {

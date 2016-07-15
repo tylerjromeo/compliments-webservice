@@ -5,9 +5,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.romeo.compliments.MainApplication;
+import org.romeo.compliments.persistence.ComplimentRepository;
 import org.romeo.compliments.persistence.UserRepository;
+import org.romeo.compliments.persistence.domain.Compliment;
+import org.romeo.compliments.web.domain.ComplimentRequest;
 import org.romeo.compliments.web.domain.PaginatedList;
 import org.romeo.compliments.web.domain.User;
+import org.romeo.compliments.web.domain.UserRequest;
 import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -37,6 +41,12 @@ public class UserControllerTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    ComplimentRepository complimentRepository;
+
+    @Autowired
+    ComplimentController complimentController;
 
     List<org.romeo.compliments.persistence.domain.User> testUsers;
 
@@ -133,5 +143,57 @@ public class UserControllerTest {
     public void testGetById_IdNotFound() throws Exception {
         long id = 12341234;
         userController.getById(id);
+    }
+
+    @Test
+    public void testAddUser_doesNotExist() throws Exception {
+        UserRequest newUser = new UserRequest("email", "name", "image");
+        assertNull("There should not be a user with this email in the db already", userRepository.findByEmail(newUser.getEmail()));
+
+        User response = userController.add(newUser);
+        assertNotNull(response);
+        assertEquals(newUser.getEmail(), response.getEmail());
+        assertEquals(newUser.getName(), response.getName());
+        assertEquals(newUser.getImageUrl(), response.getImageUrl());
+        assertEquals(0, response.getComplimentsReceived());
+        assertEquals(0, response.getComplimentsSent());
+        assertNotEquals(0, response.getId());
+
+        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(response.getId());
+        assertNotNull(dbUser);
+        assertEquals(response.getEmail(), dbUser.getEmail());
+        assertEquals(response.getName(), dbUser.getName());
+        assertEquals(response.getImageUrl(), dbUser.getImageUrl());
+        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+    }
+
+    @Test
+    public void testAddUser_hasCompliment() throws Exception {
+        //get a user to get a compliment from
+        long fromUserId = userRepository.findAll().iterator().next().getId();
+        String email = "test@example.com";
+        //add a compliment from someone so we make sure it sticks around
+        complimentController.add(new ComplimentRequest(email, "you are nice", fromUserId));
+
+        UserRequest newUser = new UserRequest(email, "name", "image");
+
+        User response = userController.add(newUser);
+        assertNotNull(response);
+        assertEquals(newUser.getEmail(), response.getEmail());
+        assertEquals(newUser.getName(), response.getName());
+        assertEquals(newUser.getImageUrl(), response.getImageUrl());
+        assertEquals(1, response.getComplimentsReceived());
+        assertEquals(0, response.getComplimentsSent());
+        assertNotEquals(0, response.getId());
+
+        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(response.getId());
+        assertNotNull(dbUser);
+        assertEquals(response.getEmail(), dbUser.getEmail());
+        assertEquals(response.getName(), dbUser.getName());
+        assertEquals(response.getImageUrl(), dbUser.getImageUrl());
+        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
+        assertEquals(fromUserId, dbUser.getComplimentsReceived().get(0).getFrom().getId());
+        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
     }
 }
