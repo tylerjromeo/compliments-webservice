@@ -196,4 +196,101 @@ public class UserControllerTest {
         assertEquals(fromUserId, dbUser.getComplimentsReceived().get(0).getFrom().getId());
         assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
     }
+
+    @Test
+    public void testEditUser() throws Exception {
+        org.romeo.compliments.persistence.domain.User testUser = userRepository.findAll().iterator().next();
+        assertNotNull(testUser);
+
+        UserRequest changedUser = new UserRequest("newEmail", "newName", "newImageUrl");
+
+        User response = userController.edit(testUser.getId(), changedUser);
+
+        assertNotNull(response);
+        assertEquals(testUser.getId(), response.getId());
+        assertEquals(changedUser.getEmail(), response.getEmail());
+        assertEquals(changedUser.getName(), response.getName());
+        assertEquals(changedUser.getImageUrl(), response.getImageUrl());
+        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceived());
+        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSent());
+
+        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(testUser.getId());
+
+        assertNotNull(dbUser);
+        assertEquals(response.getId(), dbUser.getId());
+        assertEquals(response.getEmail(), dbUser.getEmail());
+        assertEquals(response.getName(), dbUser.getName());
+        assertEquals(response.getImageUrl(), dbUser.getImageUrl());
+        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+    }
+
+    @Test
+    public void testEditUser_missingFields() throws Exception {
+        org.romeo.compliments.persistence.domain.User testUser = userRepository.findAll().iterator().next();
+        assertNotNull(testUser);
+
+        UserRequest changedUser = new UserRequest(null, null, "newImageUrl");
+
+        User response = userController.edit(testUser.getId(), changedUser);
+
+        assertNotNull(response);
+        assertEquals(testUser.getId(), response.getId());
+        assertEquals(testUser.getEmail(), response.getEmail());
+        assertEquals(testUser.getName(), response.getName());
+        assertEquals(changedUser.getImageUrl(), response.getImageUrl());
+        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceived());
+        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSent());
+
+        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(testUser.getId());
+
+        assertNotNull(dbUser);
+        assertEquals(response.getId(), dbUser.getId());
+        assertEquals(response.getEmail(), dbUser.getEmail());
+        assertEquals(response.getName(), dbUser.getName());
+        assertEquals(response.getImageUrl(), dbUser.getImageUrl());
+        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+
+    }
+
+    @Test
+    public void testEditUser_emptyStringFields() throws Exception {
+        org.romeo.compliments.persistence.domain.User testUser = userRepository.findAll().iterator().next();
+        assertNotNull(testUser);
+
+        UserRequest changedUser = new UserRequest("", "", "");
+
+        User response = userController.edit(testUser.getId(), changedUser);
+
+        assertNotNull(response);
+        assertEquals(testUser.getId(), response.getId());
+        assertEquals(changedUser.getEmail(), response.getEmail());
+        assertEquals(changedUser.getName(), response.getName());
+        assertEquals(changedUser.getImageUrl(), response.getImageUrl());
+        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceived());
+        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSent());
+
+        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(testUser.getId());
+
+        assertNotNull(dbUser);
+        assertEquals(response.getId(), dbUser.getId());
+        assertEquals(response.getEmail(), dbUser.getEmail());
+        assertEquals(response.getName(), dbUser.getName());
+        assertEquals(response.getImageUrl(), dbUser.getImageUrl());
+        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testEditUser_doesNotExist() throws Exception {
+        long badId = 2345092345l;
+        assertFalse("chosen id should not exist in test data", userRepository.exists(badId));
+
+        UserRequest changedUser = new UserRequest(null, null, "newImageUrl");
+
+        userController.edit(badId, changedUser);
+
+    }
 }

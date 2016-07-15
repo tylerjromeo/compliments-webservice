@@ -9,10 +9,8 @@ import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,6 +91,31 @@ public class UserController {
             dbUser = userRepository.save(dbUser);
         }
         return User.fromDbUser(dbUser);
+    }
+
+    @RequestMapping(method = RequestMethod.PATCH, path = "/users/{id}", produces = "application/json")
+    @ApiOperation(value = "edit User", nickname = "edit User", notes = "takes in a partial user object and replaces the provided fields. Omitted fields will not be changes")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Failure")
+    })
+    public User edit(@PathVariable(value = "id") Long id, @RequestBody UserRequest userChanges) throws ResourceNotFoundException {
+        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(id);
+        if(dbUser == null) {
+            throw new ResourceNotFoundException();
+        }
+        if(userChanges.getEmail() != null) {
+            dbUser.setEmail(userChanges.getEmail());
+        }
+        if(userChanges.getName() != null) {
+            dbUser.setName(userChanges.getName());
+        }
+        if(userChanges.getImageUrl() != null) {
+            dbUser.setImageUrl(userChanges.getImageUrl());
+        }
+        org.romeo.compliments.persistence.domain.User updatedDbUser = userRepository.save(dbUser);
+        return User.fromDbUser(updatedDbUser);
     }
 
 }
