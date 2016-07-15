@@ -15,6 +15,10 @@ public class UserRequest {
     private String email;
     private String imageUrl;
 
+    public UserRequest() {
+
+    }
+
     public UserRequest(String email, String name, String imageUrl) {
         this.email = email;
         this.name = name;
