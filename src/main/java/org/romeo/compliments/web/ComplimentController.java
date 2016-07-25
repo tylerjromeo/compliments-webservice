@@ -1,10 +1,10 @@
 package org.romeo.compliments.web;
 
 import io.swagger.annotations.*;
+import org.romeo.compliments.domain.Compliment;
 import org.romeo.compliments.persistence.ComplimentRepository;
 import org.romeo.compliments.persistence.UserRepository;
-import org.romeo.compliments.persistence.domain.User;
-import org.romeo.compliments.web.domain.Compliment;
+import org.romeo.compliments.domain.User;
 import org.romeo.compliments.web.domain.ComplimentRequest;
 import org.romeo.compliments.web.domain.PaginatedList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class ComplimentController {
 
         List<Compliment> compliments = new ArrayList<>();
         String idParam;
-        Page<org.romeo.compliments.persistence.domain.Compliment> complimentPage;
+        Page<org.romeo.compliments.domain.Compliment> complimentPage;
         if(to != null && from != null) {
             complimentPage = complimentRepository.findByToIdAndFromId(to, from, new PageRequest(page, size));
             idParam = String.format("&to=%d&from=%d", to, from);
@@ -74,8 +74,8 @@ public class ComplimentController {
                 next = String.format("/compliments?page=%d&size=%d%s", page + 1, size, idParam);
             }
 
-            for(org.romeo.compliments.persistence.domain.Compliment c: complimentPage.getContent()) {
-                compliments.add(Compliment.fromDbCompliment(c));
+            for(org.romeo.compliments.domain.Compliment c: complimentPage.getContent()) {
+                compliments.add(c);
             }
 
             return new PaginatedList<>(complimentPage.getTotalElements(), complimentPage.getNumber(), complimentPage.getNumberOfElements(), next, compliments);
@@ -101,10 +101,8 @@ public class ComplimentController {
             //TODO: users added this way should be marked so when they do log in we can ask for their name/picture
             user = userRepository.save(new User(null, complimentRequest.getToEmail(), null));
         }
-        Compliment compliment = new Compliment(complimentRequest.getFromId(), user.getId(), complimentRequest.getContents());
+        Compliment compliment = new Compliment(new User(complimentRequest.getFromId()), new User(user.getId()), complimentRequest.getContents());
 
-        org.romeo.compliments.persistence.domain.Compliment dbCompliment = org.romeo.compliments.persistence.domain.Compliment.fromWebCompliment(compliment);
-        complimentRepository.save(dbCompliment);
-        return Compliment.fromDbCompliment(dbCompliment);
+        return complimentRepository.save(compliment);
     }
 }

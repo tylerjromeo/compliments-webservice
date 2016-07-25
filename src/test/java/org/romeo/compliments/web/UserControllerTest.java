@@ -7,10 +7,9 @@ import org.junit.runner.RunWith;
 import org.romeo.compliments.MainApplication;
 import org.romeo.compliments.persistence.ComplimentRepository;
 import org.romeo.compliments.persistence.UserRepository;
-import org.romeo.compliments.persistence.domain.Compliment;
 import org.romeo.compliments.web.domain.ComplimentRequest;
+import org.romeo.compliments.domain.User;
 import org.romeo.compliments.web.domain.PaginatedList;
-import org.romeo.compliments.web.domain.User;
 import org.romeo.compliments.web.domain.UserRequest;
 import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,19 +47,19 @@ public class UserControllerTest {
     @Autowired
     ComplimentController complimentController;
 
-    List<org.romeo.compliments.persistence.domain.User> testUsers;
+    List<org.romeo.compliments.domain.User> testUsers;
 
     @Before
     public void setup() {
         testUsers = new ArrayList<>();
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("a", "b", "c"));
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("d", "e", "f"));
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("g", "h", "i"));
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("j", "k", "l"));
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("m", "n", "o"));
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("p", "q", "r"));
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("s", "t", "u"));
-        testUsers.add(new org.romeo.compliments.persistence.domain.User("w", "x", "y"));
+        testUsers.add(new org.romeo.compliments.domain.User("a", "b", "c"));
+        testUsers.add(new org.romeo.compliments.domain.User("d", "e", "f"));
+        testUsers.add(new org.romeo.compliments.domain.User("g", "h", "i"));
+        testUsers.add(new org.romeo.compliments.domain.User("j", "k", "l"));
+        testUsers.add(new org.romeo.compliments.domain.User("m", "n", "o"));
+        testUsers.add(new org.romeo.compliments.domain.User("p", "q", "r"));
+        testUsers.add(new org.romeo.compliments.domain.User("s", "t", "u"));
+        testUsers.add(new org.romeo.compliments.domain.User("w", "x", "y"));
         userRepository.save(testUsers);
     }
 
@@ -133,10 +132,17 @@ public class UserControllerTest {
 
     @Test
     public void testGetById() throws Exception {
-        Iterable<org.romeo.compliments.persistence.domain.User> allUsers = userRepository.findAll();
-        org.romeo.compliments.persistence.domain.User userToGet = allUsers.iterator().next();
+        Iterable<org.romeo.compliments.domain.User> allUsers = userRepository.findAll();
+        User userToGet = allUsers.iterator().next();
         User result = userController.getById(userToGet.getId());
-        assertEquals(result, User.fromDbUser(userToGet));
+        //https://forum.hibernate.org/viewtopic.php?p=2465916
+        //Can't compare these directly because of hibernate limitations. Serves me right for unit testing hibernate code
+        assertEquals(userToGet.getEmail(), result.getEmail());
+        assertEquals(userToGet.getName(), result.getName());
+        assertEquals(userToGet.getImageUrl(), result.getImageUrl());
+        assertEquals(userToGet.getComplimentsReceivedCount(), result.getComplimentsReceivedCount());
+        assertEquals(userToGet.getComplimentsSentCount(), result.getComplimentsSentCount());
+
     }
 
     @Test(expected = ResourceNotFoundException.class)
@@ -155,17 +161,17 @@ public class UserControllerTest {
         assertEquals(newUser.getEmail(), response.getEmail());
         assertEquals(newUser.getName(), response.getName());
         assertEquals(newUser.getImageUrl(), response.getImageUrl());
-        assertEquals(0, response.getComplimentsReceived());
-        assertEquals(0, response.getComplimentsSent());
+        assertEquals(0, response.getComplimentsReceivedCount());
+        assertEquals(0, response.getComplimentsSentCount());
         assertNotEquals(0, response.getId());
 
-        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(response.getId());
+        org.romeo.compliments.domain.User dbUser = userRepository.findOne(response.getId());
         assertNotNull(dbUser);
         assertEquals(response.getEmail(), dbUser.getEmail());
         assertEquals(response.getName(), dbUser.getName());
         assertEquals(response.getImageUrl(), dbUser.getImageUrl());
-        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
-        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+        assertEquals(response.getComplimentsReceivedCount(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSentCount(), dbUser.getComplimentsSent().size());
     }
 
     @Test
@@ -183,23 +189,23 @@ public class UserControllerTest {
         assertEquals(newUser.getEmail(), response.getEmail());
         assertEquals(newUser.getName(), response.getName());
         assertEquals(newUser.getImageUrl(), response.getImageUrl());
-        assertEquals(1, response.getComplimentsReceived());
-        assertEquals(0, response.getComplimentsSent());
+        assertEquals(1, response.getComplimentsReceivedCount());
+        assertEquals(0, response.getComplimentsSentCount());
         assertNotEquals(0, response.getId());
 
-        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(response.getId());
+        org.romeo.compliments.domain.User dbUser = userRepository.findOne(response.getId());
         assertNotNull(dbUser);
         assertEquals(response.getEmail(), dbUser.getEmail());
         assertEquals(response.getName(), dbUser.getName());
         assertEquals(response.getImageUrl(), dbUser.getImageUrl());
-        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsReceivedCount(), dbUser.getComplimentsReceived().size());
         assertEquals(fromUserId, dbUser.getComplimentsReceived().get(0).getFrom().getId());
-        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+        assertEquals(response.getComplimentsSentCount(), dbUser.getComplimentsSent().size());
     }
 
     @Test
     public void testEditUser() throws Exception {
-        org.romeo.compliments.persistence.domain.User testUser = userRepository.findAll().iterator().next();
+        org.romeo.compliments.domain.User testUser = userRepository.findAll().iterator().next();
         assertNotNull(testUser);
 
         UserRequest changedUser = new UserRequest("newEmail", "newName", "newImageUrl");
@@ -211,23 +217,23 @@ public class UserControllerTest {
         assertEquals(changedUser.getEmail(), response.getEmail());
         assertEquals(changedUser.getName(), response.getName());
         assertEquals(changedUser.getImageUrl(), response.getImageUrl());
-        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceived());
-        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSent());
+        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceivedCount());
+        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSentCount());
 
-        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(testUser.getId());
+        org.romeo.compliments.domain.User dbUser = userRepository.findOne(testUser.getId());
 
         assertNotNull(dbUser);
         assertEquals(response.getId(), dbUser.getId());
         assertEquals(response.getEmail(), dbUser.getEmail());
         assertEquals(response.getName(), dbUser.getName());
         assertEquals(response.getImageUrl(), dbUser.getImageUrl());
-        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
-        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+        assertEquals(response.getComplimentsReceivedCount(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSentCount(), dbUser.getComplimentsSent().size());
     }
 
     @Test
     public void testEditUser_missingFields() throws Exception {
-        org.romeo.compliments.persistence.domain.User testUser = userRepository.findAll().iterator().next();
+        org.romeo.compliments.domain.User testUser = userRepository.findAll().iterator().next();
         assertNotNull(testUser);
 
         UserRequest changedUser = new UserRequest(null, null, "newImageUrl");
@@ -239,24 +245,24 @@ public class UserControllerTest {
         assertEquals(testUser.getEmail(), response.getEmail());
         assertEquals(testUser.getName(), response.getName());
         assertEquals(changedUser.getImageUrl(), response.getImageUrl());
-        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceived());
-        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSent());
+        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceivedCount());
+        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSentCount());
 
-        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(testUser.getId());
+        org.romeo.compliments.domain.User dbUser = userRepository.findOne(testUser.getId());
 
         assertNotNull(dbUser);
         assertEquals(response.getId(), dbUser.getId());
         assertEquals(response.getEmail(), dbUser.getEmail());
         assertEquals(response.getName(), dbUser.getName());
         assertEquals(response.getImageUrl(), dbUser.getImageUrl());
-        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
-        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+        assertEquals(response.getComplimentsReceivedCount(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSentCount(), dbUser.getComplimentsSent().size());
 
     }
 
     @Test
     public void testEditUser_emptyStringFields() throws Exception {
-        org.romeo.compliments.persistence.domain.User testUser = userRepository.findAll().iterator().next();
+        org.romeo.compliments.domain.User testUser = userRepository.findAll().iterator().next();
         assertNotNull(testUser);
 
         UserRequest changedUser = new UserRequest("", "", "");
@@ -268,18 +274,18 @@ public class UserControllerTest {
         assertEquals(changedUser.getEmail(), response.getEmail());
         assertEquals(changedUser.getName(), response.getName());
         assertEquals(changedUser.getImageUrl(), response.getImageUrl());
-        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceived());
-        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSent());
+        assertEquals(testUser.getComplimentsReceived().size(), response.getComplimentsReceivedCount());
+        assertEquals(testUser.getComplimentsSent().size(), response.getComplimentsSentCount());
 
-        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(testUser.getId());
+        org.romeo.compliments.domain.User dbUser = userRepository.findOne(testUser.getId());
 
         assertNotNull(dbUser);
         assertEquals(response.getId(), dbUser.getId());
         assertEquals(response.getEmail(), dbUser.getEmail());
         assertEquals(response.getName(), dbUser.getName());
         assertEquals(response.getImageUrl(), dbUser.getImageUrl());
-        assertEquals(response.getComplimentsReceived(), dbUser.getComplimentsReceived().size());
-        assertEquals(response.getComplimentsSent(), dbUser.getComplimentsSent().size());
+        assertEquals(response.getComplimentsReceivedCount(), dbUser.getComplimentsReceived().size());
+        assertEquals(response.getComplimentsSentCount(), dbUser.getComplimentsSent().size());
 
     }
 

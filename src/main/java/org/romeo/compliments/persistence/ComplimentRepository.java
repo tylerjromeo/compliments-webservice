@@ -1,12 +1,9 @@
 package org.romeo.compliments.persistence;
 
-import org.romeo.compliments.persistence.domain.Compliment;
-import org.romeo.compliments.persistence.domain.User;
+import org.romeo.compliments.domain.Compliment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
 
 /**
  * User: tylerromeo

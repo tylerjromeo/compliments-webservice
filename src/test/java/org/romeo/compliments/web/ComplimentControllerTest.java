@@ -5,9 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.romeo.compliments.MainApplication;
+import org.romeo.compliments.domain.User;
 import org.romeo.compliments.persistence.ComplimentRepository;
 import org.romeo.compliments.persistence.UserRepository;
-import org.romeo.compliments.web.domain.Compliment;
+import org.romeo.compliments.domain.Compliment;
 import org.romeo.compliments.web.domain.ComplimentRequest;
 import org.romeo.compliments.web.domain.PaginatedList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,29 +43,29 @@ public class ComplimentControllerTest {
     @Autowired
     UserRepository userRepository;
 
-    org.romeo.compliments.persistence.domain.User testUser1;
-    org.romeo.compliments.persistence.domain.User testUser2;
-    org.romeo.compliments.persistence.domain.User testUser3;
+    User testUser1;
+    User testUser2;
+    User testUser3;
 
-    List<org.romeo.compliments.persistence.domain.Compliment> complimentList;
-    org.romeo.compliments.persistence.domain.Compliment testCompliment1;
-    org.romeo.compliments.persistence.domain.Compliment testCompliment2;
-    org.romeo.compliments.persistence.domain.Compliment testCompliment3;
-    org.romeo.compliments.persistence.domain.Compliment testCompliment4;
+    List<org.romeo.compliments.domain.Compliment> complimentList;
+    org.romeo.compliments.domain.Compliment testCompliment1;
+    org.romeo.compliments.domain.Compliment testCompliment2;
+    org.romeo.compliments.domain.Compliment testCompliment3;
+    org.romeo.compliments.domain.Compliment testCompliment4;
 
     @Before
     public void setup() {
-        testUser1 = new org.romeo.compliments.persistence.domain.User("a", "b", "c");
-        testUser2 = new org.romeo.compliments.persistence.domain.User("d", "e", "f");
-        testUser3 = new org.romeo.compliments.persistence.domain.User("g", "h", "i");
+        testUser1 = new User("a", "b", "c");
+        testUser2 = new User("d", "e", "f");
+        testUser3 = new User("g", "h", "i");
         userRepository.save(testUser1);
         userRepository.save(testUser2);
         userRepository.save(testUser3);
 
-        testCompliment1 = new org.romeo.compliments.persistence.domain.Compliment(testUser1, testUser2, "1 I think you are great. Love, 2");
-        testCompliment2 = new org.romeo.compliments.persistence.domain.Compliment(testUser1, testUser2, "1 I think you are really great. Love, 2");
-        testCompliment3 = new org.romeo.compliments.persistence.domain.Compliment(testUser2, testUser3, "2 I think you are great. Love, 3");
-        testCompliment4 = new org.romeo.compliments.persistence.domain.Compliment(testUser1, testUser3, "1 I think you are great. Love, 3");
+        testCompliment1 = new org.romeo.compliments.domain.Compliment(testUser1, testUser2, "1 I think you are great. Love, 2");
+        testCompliment2 = new org.romeo.compliments.domain.Compliment(testUser1, testUser2, "1 I think you are really great. Love, 2");
+        testCompliment3 = new org.romeo.compliments.domain.Compliment(testUser2, testUser3, "2 I think you are great. Love, 3");
+        testCompliment4 = new org.romeo.compliments.domain.Compliment(testUser1, testUser3, "1 I think you are great. Love, 3");
         complimentList = new ArrayList<>();
         complimentList.add(testCompliment1);
         complimentList.add(testCompliment2);
@@ -98,7 +99,7 @@ public class ComplimentControllerTest {
             assertNotNull(c);
             assertNotNull(c.getContents());
             assertNotNull(c.getSendDate());
-            assertEquals(to, Long.valueOf(c.getToId()));
+            assertEquals(to, Long.valueOf(c.getToUserId()));
         }
     }
 
@@ -121,7 +122,7 @@ public class ComplimentControllerTest {
             assertNotNull(c);
             assertNotNull(c.getContents());
             assertNotNull(c.getSendDate());
-            assertEquals(from, Long.valueOf(c.getFromId()));
+            assertEquals(from, Long.valueOf(c.getFromUserId()));
         }
     }
 
@@ -164,8 +165,8 @@ public class ComplimentControllerTest {
             assertNotNull(c);
             assertNotNull(c.getContents());
             assertNotNull(c.getSendDate());
-            assertEquals(to, Long.valueOf(c.getToId()));
-            assertEquals(from, Long.valueOf(c.getFromId()));
+            assertEquals(to, Long.valueOf(c.getToUserId()));
+            assertEquals(from, Long.valueOf(c.getFromUserId()));
         }
     }
 
@@ -176,18 +177,18 @@ public class ComplimentControllerTest {
 
         Compliment response = complimentController.add(compliment);
 
-        org.romeo.compliments.persistence.domain.Compliment dbCompliment = complimentRepository.findById(response.getId());
+        org.romeo.compliments.domain.Compliment dbCompliment = complimentRepository.findById(response.getId());
 
         assertNotNull(response);
-        assertEquals(testUser1.getId(), response.getToId());
+        assertEquals(testUser1.getId(), response.getToUserId());
         assertEquals(compliment.getContents(), response.getContents());
-        assertEquals(testUser2.getId(), response.getFromId());
+        assertEquals(testUser2.getId(), response.getFromUserId());
 
         assertNotNull("Added compliment not found in db", dbCompliment);
         assertEquals(response.getId(), dbCompliment.getId());
-        assertEquals(response.getToId(), dbCompliment.getTo().getId());
+        assertEquals(response.getToUserId(), dbCompliment.getTo().getId());
         assertEquals(response.getContents(), dbCompliment.getContents());
-        assertEquals(response.getFromId(), dbCompliment.getFrom().getId());
+        assertEquals(response.getFromUserId(), dbCompliment.getFrom().getId());
         assertNotNull(dbCompliment.getSendDate());
     }
 
@@ -200,23 +201,23 @@ public class ComplimentControllerTest {
 
         Compliment response = complimentController.add(compliment);
 
-        org.romeo.compliments.persistence.domain.Compliment dbCompliment = complimentRepository.findById(response.getId());
+        org.romeo.compliments.domain.Compliment dbCompliment = complimentRepository.findById(response.getId());
 
-        org.romeo.compliments.persistence.domain.User newUser = userRepository.findByEmail(newEmail);
+        User newUser = userRepository.findByEmail(newEmail);
 
         assertNotNull("user with new email address should have been added to db", newUser);
         assertEquals(newEmail, newUser.getEmail());
 
         assertNotNull(response);
-        assertEquals(newUser.getId(), response.getToId());
+        assertEquals(newUser.getId(), response.getToUserId());
         assertEquals(compliment.getContents(), response.getContents());
-        assertEquals(testUser2.getId(), response.getFromId());
+        assertEquals(testUser2.getId(), response.getFromUserId());
 
         assertNotNull("Added compliment not found in db", dbCompliment);
         assertEquals(response.getId(), dbCompliment.getId());
-        assertEquals(response.getToId(), dbCompliment.getTo().getId());
+        assertEquals(response.getToUserId(), dbCompliment.getTo().getId());
         assertEquals(response.getContents(), dbCompliment.getContents());
-        assertEquals(response.getFromId(), dbCompliment.getFrom().getId());
+        assertEquals(response.getFromUserId(), dbCompliment.getFrom().getId());
         assertNotNull(dbCompliment.getSendDate());
 
     }

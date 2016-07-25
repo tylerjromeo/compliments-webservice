@@ -1,6 +1,6 @@
 package org.romeo.compliments.persistence;
 
-import org.romeo.compliments.persistence.domain.User;
+import org.romeo.compliments.domain.User;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
