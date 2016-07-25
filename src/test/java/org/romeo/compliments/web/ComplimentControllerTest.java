@@ -1,5 +1,6 @@
 package org.romeo.compliments.web;
 
+import org.hibernate.ObjectNotFoundException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,11 +12,13 @@ import org.romeo.compliments.persistence.UserRepository;
 import org.romeo.compliments.domain.Compliment;
 import org.romeo.compliments.web.domain.ComplimentRequest;
 import org.romeo.compliments.web.domain.PaginatedList;
+import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +84,7 @@ public class ComplimentControllerTest {
     }
 
     @Test
-    public void testGetAll_to() {
+    public void testGetAll_to() throws Exception {
         Long to = testUser2.getId();
         Long from = null;
         int page = 0;
@@ -104,7 +107,7 @@ public class ComplimentControllerTest {
     }
 
     @Test
-    public void testGetAll_from() {
+    public void testGetAll_from() throws Exception {
         Long to = null;
         Long from = testUser1.getId();
         int page = 0;
@@ -127,7 +130,7 @@ public class ComplimentControllerTest {
     }
 
     @Test
-    public void testGetAll_noIds() {
+    public void testGetAll_noIds() throws Exception {
         Long to = null;
         Long from = null;
         int page = 0;
@@ -149,7 +152,7 @@ public class ComplimentControllerTest {
     }
 
     @Test
-    public void testGetAll_toAndFrom() {
+    public void testGetAll_toAndFrom() throws Exception {
         Long to = testUser3.getId();
         Long from = testUser1.getId();
         int page = 0;
@@ -171,7 +174,7 @@ public class ComplimentControllerTest {
     }
 
     @Test
-    public void testAdd() {
+    public void testAdd() throws Exception {
         String content = "new compliment content";
         ComplimentRequest compliment = new ComplimentRequest(testUser1.getEmail(), content, testUser2.getId());
 
@@ -193,7 +196,7 @@ public class ComplimentControllerTest {
     }
 
     @Test
-    public void testAddByEmail_noEmailMatch() {
+    public void testAddByEmail_noEmailMatch() throws Exception {
         String newEmail = "test@example.com";
         assertNull("new email address should not exist in the db", userRepository.findByEmail(newEmail));
         String content = "new compliment content";
@@ -222,4 +225,132 @@ public class ComplimentControllerTest {
 
     }
 
+    @Test
+    @Transactional
+    public void addReaction() throws Exception {
+        Compliment compliment = complimentController.getAll(null, null, 0, 10).getResults().get(0);
+        assertNotNull(compliment);
+
+        assertTrue("compliment should not have any reactions", compliment.getReactions() == null || compliment.getReactions().isEmpty());
+
+        Compliment.Reaction reaction = new Compliment.Reaction(null, "joy");
+
+        Compliment.Reaction result = complimentController.addReaction(compliment.getId(), reaction);
+
+        assertEquals(reaction.getReaction(), result.getReaction());
+
+        List<Compliment.Reaction> dbReactions = complimentRepository.findById(compliment.getId()).getReactions();
+        assertEquals("There should only be one reaction to the compliment", 1, dbReactions.size());
+        //There's only one reaction, so getting 0 should give us the same one
+        Compliment.Reaction dbReaction = dbReactions.get(0);
+
+        assertEquals(result.getId(), dbReaction.getId());
+        assertEquals(result.getReaction(), dbReaction.getReaction());
+
+    }
+
+    @Test
+    @Transactional
+    public void addReaction_multiple() throws Exception {
+        Compliment compliment = complimentController.getAll(null, null, 0, 10).getResults().get(0);
+        assertNotNull(compliment);
+
+        assertTrue("compliment should not have any reactions", compliment.getReactions() == null || compliment.getReactions().isEmpty());
+
+        Compliment.Reaction reaction = new Compliment.Reaction(null, "joy");
+        Compliment.Reaction reaction2 = new Compliment.Reaction(null, "crying");
+
+        Compliment.Reaction result = complimentController.addReaction(compliment.getId(), reaction);
+        Compliment.Reaction result2 = complimentController.addReaction(compliment.getId(), reaction2);
+
+        assertEquals(reaction.getReaction(), result.getReaction());
+        assertEquals(reaction2.getReaction(), result2.getReaction());
+
+        List<Compliment.Reaction> dbReactions = complimentRepository.findById(compliment.getId()).getReactions();
+        assertEquals("There should only be two reactions to the compliment", 2, dbReactions.size());
+
+    }
+
+    @Test
+    @Transactional
+    public void addReaction_duplicate() throws Exception {
+        Compliment compliment = complimentController.getAll(null, null, 0, 10).getResults().get(0);
+        assertNotNull(compliment);
+
+        assertTrue("compliment should not have any reactions", compliment.getReactions() == null || compliment.getReactions().isEmpty());
+
+        Compliment.Reaction reaction = new Compliment.Reaction(null, "joy");
+        Compliment.Reaction reaction2 = new Compliment.Reaction(null, "joy");
+
+        Compliment.Reaction result = complimentController.addReaction(compliment.getId(), reaction);
+        Compliment.Reaction result2 = complimentController.addReaction(compliment.getId(), reaction2);
+
+        assertEquals(reaction.getReaction(), result.getReaction());
+        assertEquals(reaction2.getReaction(), result2.getReaction());
+        assertEquals("The duplicate call should return the same id as the first one", result.getId(), result2.getId());
+
+        List<Compliment.Reaction> dbReactions = complimentRepository.findById(compliment.getId()).getReactions();
+        assertEquals("There should only be one reactions to the compliment", 1, dbReactions.size());
+
+    }
+
+    //@Test
+    //TODO: implement once user making request is known
+    public void addReaction_otherUserReceived() throws Exception {
+
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    @Transactional
+    public void addReaction_complimentDoesNotExist() throws Exception {
+        long badId = 9123857029835L;
+        assertNull("compliment should not exist in test data", complimentRepository.findOne(badId));
+        //Should throw ResourceNotFoundException
+        complimentController.addReaction(badId, new Compliment.Reaction(null, "test"));
+    }
+
+    @Test
+    @Transactional
+    public void deleteReaction() throws Exception {
+        Compliment compliment = complimentController.getAll(null, null, 0, 10).getResults().get(0);
+        assertNotNull(compliment);
+
+        assertTrue("compliment should not have any reactions", compliment.getReactions() == null || compliment.getReactions().isEmpty());
+
+        Compliment.Reaction reaction = new Compliment.Reaction(null, "joy");
+
+        Compliment.Reaction result = complimentController.addReaction(compliment.getId(), reaction);
+
+        assertEquals(reaction.getReaction(), result.getReaction());
+        assertEquals(1, complimentRepository.findById(compliment.getId()).getReactions().size());
+
+        complimentController.deleteReaction(compliment.getId(), result.getId());
+
+        assertEquals(0, complimentRepository.findById(compliment.getId()).getReactions().size());
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    @Transactional
+    public void deleteReaction_reactionDoesNotExist() throws Exception {
+        Compliment compliment = complimentController.getAll(null, null, 0, 10).getResults().get(0);
+        assertNotNull(compliment);
+
+        assertTrue("compliment should not have any reactions", compliment.getReactions() == null || compliment.getReactions().isEmpty());
+
+        complimentController.deleteReaction(compliment.getId(), 1L);
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteReaction_complimentDoesNotExist() throws Exception {
+        long badId = 9123857029835L;
+        assertNull("compliment should not exist in test data", complimentRepository.findOne(badId));
+        //Should throw ResourceNotFoundException
+        complimentController.deleteReaction(badId, 0L);
+    }
+
+    //@Test
+    //TODO: implement once user making request is known
+    public void deleteReaction_otherUserReceived() throws Exception {
+
+    }
 }

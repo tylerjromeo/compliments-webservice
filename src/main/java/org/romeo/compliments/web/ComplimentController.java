@@ -7,9 +7,13 @@ import org.romeo.compliments.persistence.UserRepository;
 import org.romeo.compliments.domain.User;
 import org.romeo.compliments.web.domain.ComplimentRequest;
 import org.romeo.compliments.web.domain.PaginatedList;
+import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -104,5 +108,79 @@ public class ComplimentController {
         Compliment compliment = new Compliment(new User(complimentRequest.getFromId()), new User(user.getId()), complimentRequest.getContents());
 
         return complimentRepository.save(compliment);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/compliments/{complimentId}/reactions", consumes = "application/json", produces = "application/json")
+    @ApiOperation(value = "Add Reaction to Compliment", nickname = "Add Reaction to Compliment")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "reaction", value = "reaction to add to the compliment.", required = true, dataType = "Compliment", paramType = "body")
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Failure")})
+    public Compliment.Reaction addReaction(@PathVariable long complimentId, @RequestBody @Validated Compliment.Reaction reaction) throws ResourceNotFoundException {
+        Compliment compliment = complimentRepository.findOne(complimentId);
+        if(compliment == null) {
+            throw new ResourceNotFoundException();
+        }
+
+        if(compliment.getReactions() == null) {
+            compliment.setReactions(new ArrayList<>());
+        }
+        Compliment.Reaction existingReaction = null;
+        long maxId = 0L;
+        for(Compliment.Reaction r : compliment.getReactions()) {
+            if (r.getId() > maxId) {
+                maxId = r.getId();
+            }
+            if(r.getReaction().equals(reaction.getReaction())) {
+                existingReaction = r;
+            }
+        }
+
+        if(existingReaction != null) {
+            return existingReaction;
+        } else {
+            reaction.setId(maxId + 1);
+            compliment.getReactions().add(reaction);
+            complimentRepository.save(compliment);
+            return reaction;
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "/compliments/{complimentId}/reactions/{reactionId}", consumes = "application/json", produces = "application/json")
+    @ApiOperation(value = "Remove Reaction", nickname = "Remove Reaction")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Failure")})
+    public ResponseEntity<?> deleteReaction(@PathVariable long complimentId, @PathVariable long reactionId) throws ResourceNotFoundException {
+        Compliment compliment = complimentRepository.findOne(complimentId);
+        if(compliment == null) {
+            throw new ResourceNotFoundException();
+        }
+        if(compliment.getReactions() == null) {
+            throw new ResourceNotFoundException();
+        }
+
+        Compliment.Reaction removedCompliment = null;
+        for(Compliment.Reaction r : compliment.getReactions()) {
+            if(r.getId().equals(reactionId)) {
+                removedCompliment = r;
+                break;
+            }
+        }
+
+        if(removedCompliment == null) {
+            throw new ResourceNotFoundException();
+        }
+
+        compliment.getReactions().remove(removedCompliment);
+        complimentRepository.save(compliment);
+
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 }
