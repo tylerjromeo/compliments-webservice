@@ -3,7 +3,7 @@ package org.romeo.compliments.web;
 import io.swagger.annotations.*;
 import org.romeo.compliments.persistence.UserRepository;
 import org.romeo.compliments.web.domain.PaginatedList;
-import org.romeo.compliments.web.domain.User;
+import org.romeo.compliments.domain.User;
 import org.romeo.compliments.web.domain.UserRequest;
 import org.romeo.compliments.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +49,9 @@ public class UserController {
             @RequestParam(defaultValue = "10") int size) {
         //TODO: filter by email
         List<User> users = new ArrayList<>();
-        Page<org.romeo.compliments.persistence.domain.User> dbUsersPage = userRepository.findAll(new PageRequest(page, size));
-        for(org.romeo.compliments.persistence.domain.User dbUser : dbUsersPage) {
-            users.add(User.fromDbUser(dbUser));
+        Page<org.romeo.compliments.domain.User> dbUsersPage = userRepository.findAll(new PageRequest(page, size));
+        for(org.romeo.compliments.domain.User dbUser : dbUsersPage) {
+            users.add(dbUser);
         }
         String next = "";
         if(dbUsersPage.hasNext()) {
@@ -66,7 +66,7 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "User's id", required = true, dataType = "long", paramType = "path")
     })
     public User getById(@PathVariable("id") long id) throws ResourceNotFoundException {
-        User user = User.fromDbUser(userRepository.findOne(id));
+        User user = userRepository.findOne(id);
         if(user == null) {
             throw new ResourceNotFoundException();
         }
@@ -81,16 +81,16 @@ public class UserController {
             @ApiResponse(code = 500, message = "Failure")
     })
     public User add(@RequestBody @Validated UserRequest user) {
-        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findByEmail(user.getEmail());
+        org.romeo.compliments.domain.User dbUser = userRepository.findByEmail(user.getEmail());
         if(dbUser == null) {
-            dbUser = userRepository.save(new org.romeo.compliments.persistence.domain.User(user.getName(), user.getEmail(), user.getImageUrl()));
+            dbUser = userRepository.save(new org.romeo.compliments.domain.User(user.getName(), user.getEmail(), user.getImageUrl()));
         } else {
             //TODO: User object will need a flag for if it has been "set up" check that here and throw a 400 if it's true
             dbUser.setName(user.getName());
             dbUser.setImageUrl(user.getImageUrl());
             dbUser = userRepository.save(dbUser);
         }
-        return User.fromDbUser(dbUser);
+        return dbUser;
     }
 
     @RequestMapping(method = RequestMethod.PATCH, path = "/users/{id}", produces = "application/json")
@@ -101,7 +101,7 @@ public class UserController {
             @ApiResponse(code = 500, message = "Failure")
     })
     public User edit(@PathVariable(value = "id") Long id, @RequestBody UserRequest userChanges) throws ResourceNotFoundException {
-        org.romeo.compliments.persistence.domain.User dbUser = userRepository.findOne(id);
+        org.romeo.compliments.domain.User dbUser = userRepository.findOne(id);
         if(dbUser == null) {
             throw new ResourceNotFoundException();
         }
@@ -114,8 +114,8 @@ public class UserController {
         if(userChanges.getImageUrl() != null) {
             dbUser.setImageUrl(userChanges.getImageUrl());
         }
-        org.romeo.compliments.persistence.domain.User updatedDbUser = userRepository.save(dbUser);
-        return User.fromDbUser(updatedDbUser);
+        org.romeo.compliments.domain.User updatedDbUser = userRepository.save(dbUser);
+        return updatedDbUser;
     }
 
 }
