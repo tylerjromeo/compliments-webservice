@@ -225,6 +225,8 @@ public class ComplimentControllerTest {
 
     }
 
+    //TODO: complement self test
+
     @Test
     @Transactional
     public void addReaction() throws Exception {

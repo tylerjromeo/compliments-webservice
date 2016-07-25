@@ -91,9 +91,6 @@ public class ComplimentController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/compliments", consumes = "application/json", produces = "application/json")
     @ApiOperation(value = "Add Compliment", nickname = "Add Compliment")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "compliment", value = "compliment to send with to user id filled out", required = true, dataType = "Compliment", paramType = "body")
-    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -112,15 +109,12 @@ public class ComplimentController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/compliments/{complimentId}/reactions", consumes = "application/json", produces = "application/json")
     @ApiOperation(value = "Add Reaction to Compliment", nickname = "Add Reaction to Compliment")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "reaction", value = "reaction to add to the compliment.", required = true, dataType = "Compliment", paramType = "body")
-    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
-    public Compliment.Reaction addReaction(@PathVariable long complimentId, @RequestBody @Validated Compliment.Reaction reaction) throws ResourceNotFoundException {
+    public Compliment.Reaction addReaction(@PathVariable long complimentId, @RequestBody Compliment.Reaction reaction) throws ResourceNotFoundException {
         Compliment compliment = complimentRepository.findOne(complimentId);
         if(compliment == null) {
             throw new ResourceNotFoundException();
@@ -150,7 +144,7 @@ public class ComplimentController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, path = "/compliments/{complimentId}/reactions/{reactionId}", consumes = "application/json", produces = "application/json")
+    @RequestMapping(method = RequestMethod.DELETE, path = "/compliments/{complimentId}/reactions/{reactionId}")
     @ApiOperation(value = "Remove Reaction", nickname = "Remove Reaction")
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "Success"),
